@@ -1,0 +1,9 @@
+*.unity binary
+*.prefab binary
+*.asset binary
+*.unity merge=unityyamlmerge
+*.prefab merge=unityyamlmerge
+*.asset merge=unityyamlmerge
+*.mat merge=unityyamlmerge
+*.anim merge=unityyamlmerge
+*.controller merge=unityyamlmerge
