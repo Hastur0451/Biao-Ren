@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CharacterController2D : MonoBehaviour
+public class Player_Movement : MonoBehaviour
 {
     [Header("移动设置")]
     public float moveSpeed = 5f;          // 移动速度
