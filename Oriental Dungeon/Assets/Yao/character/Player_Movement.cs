@@ -1,36 +1,47 @@
 using UnityEngine;
 
-public class Player_Movement : MonoBehaviour
+public class CharacterController2D : MonoBehaviour
 {
     [Header("移动设置")]
-    public float moveSpeed = 5f;          // 移动速度
-    public float airControlFactor = 0.5f; // 空中控制系数
+    public float moveSpeed = 5f;
+    public float airControlFactor = 0.5f;
 
     [Header("跳跃设置")]
-    public float initialJumpForce = 10f;  // 初始跳跃力
-    public float maxJumpHeight = 4f;      // 最大跳跃高度
-    public float jumpDuration = 0.5f;     // 跳跃持续时间
-    public float jumpCooldown = 0.2f;     // 跳跃冷却时间
+    public float maxJumpHeight = 4f;
+    public float timeToJumpApex = 0.4f;
+    public float jumpCooldown = 0.2f;
 
     [Header("地面检测")]
-    public float groundCheckRadius = 0.1f;  // 地面检测半径
-    public LayerMask groundLayer;           // 地面层
-    public string upwardPlatformTag = "UpwardPlatform"; // 向上平台标签
+    public LayerMask groundLayer;
+    public float groundCheckRadius = 0.1f;
+    public Vector2 groundCheckOffset = new Vector2(0, -0.5f);
 
     [Header("引用")]
     public Rigidbody2D rb;
 
     private bool isGrounded;
     private bool canJump = true;
-    private bool isJumping;
-    private float jumpStartTime;
-    private float jumpStartY;
+    private float jumpVelocity;
+    private float gravity;
     private float lastJumpTime;
+    private bool isJumping;
+    private float jumpStartY;
 
     private void Start()
     {
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
+
+        CalculateJumpParameters();
+    }
+
+    private void CalculateJumpParameters()
+    {
+        // 使用运动学公式计算重力和初始跳跃速度
+        gravity = -(2 * maxJumpHeight) / Mathf.Pow(timeToJumpApex, 2);
+        jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
+
+        rb.gravityScale = Mathf.Abs(gravity) / Physics2D.gravity.magnitude;
     }
 
     private void Update()
@@ -38,39 +49,28 @@ public class Player_Movement : MonoBehaviour
         CheckGrounded();
         HandleMovement();
         HandleJump();
-        UpdateDebugInfo();
     }
 
     private void CheckGrounded()
     {
-        isGrounded = Physics2D.OverlapCircle(transform.position + Vector3.down * 0.5f, groundCheckRadius, groundLayer);
+        Vector2 checkPosition = (Vector2)transform.position + groundCheckOffset;
+        isGrounded = Physics2D.OverlapCircle(checkPosition, groundCheckRadius, groundLayer);
 
-        if (isGrounded && Time.time - lastJumpTime >= jumpCooldown)
+        if (isGrounded)
         {
-            canJump = true;
+            isJumping = false;
+            if (Time.time - lastJumpTime >= jumpCooldown)
+            {
+                canJump = true;
+            }
         }
     }
 
     private void HandleMovement()
     {
         float moveHorizontal = Input.GetAxisRaw("Horizontal");
-        float currentMoveSpeed = moveSpeed;
-
-        if (!isGrounded)
-            currentMoveSpeed *= airControlFactor;
-
-        Vector2 movement = new Vector2(moveHorizontal * currentMoveSpeed, rb.velocity.y);
-        rb.velocity = movement;
-
-        // 处理向上平台
-        if (isGrounded)
-        {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, groundCheckRadius, groundLayer);
-            if (hit.collider != null && hit.collider.CompareTag(upwardPlatformTag))
-            {
-                transform.Translate(Vector2.up * Time.deltaTime);
-            }
-        }
+        float currentMoveSpeed = isGrounded ? moveSpeed : moveSpeed * airControlFactor;
+        rb.velocity = new Vector2(moveHorizontal * currentMoveSpeed, rb.velocity.y);
     }
 
     private void HandleJump()
@@ -80,14 +80,12 @@ public class Player_Movement : MonoBehaviour
             StartJump();
         }
 
-        if (Input.GetKey(KeyCode.Space) && isJumping)
+        if (isJumping)
         {
-            ContinueJump();
-        }
-
-        if (Input.GetKeyUp(KeyCode.Space) || transform.position.y - jumpStartY >= maxJumpHeight)
-        {
-            StopJump();
+            if (transform.position.y - jumpStartY >= maxJumpHeight || rb.velocity.y <= 0)
+            {
+                StopJump();
+            }
         }
     }
 
@@ -95,42 +93,32 @@ public class Player_Movement : MonoBehaviour
     {
         isJumping = true;
         canJump = false;
-        jumpStartY = transform.position.y;
-        jumpStartTime = Time.time;
         lastJumpTime = Time.time;
-        rb.velocity = new Vector2(rb.velocity.x, initialJumpForce);
-    }
-
-    private void ContinueJump()
-    {
-        float jumpProgress = (Time.time - jumpStartTime) / jumpDuration;
-        if (jumpProgress < 1f && transform.position.y - jumpStartY < maxJumpHeight)
-        {
-            float jumpForce = Mathf.Lerp(initialJumpForce, 0, jumpProgress);
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-        }
-        else
-        {
-            StopJump();
-        }
+        jumpStartY = transform.position.y;
+        rb.velocity = new Vector2(rb.velocity.x, jumpVelocity);
+        Debug.Log($"Jump started. Velocity: {jumpVelocity}");
     }
 
     private void StopJump()
     {
         isJumping = false;
         rb.velocity = new Vector2(rb.velocity.x, Mathf.Min(rb.velocity.y, 0));
-    }
-
-    private void UpdateDebugInfo()
-    {
-        string debugInfo = $"isGrounded: {isGrounded}, canJump: {canJump}, isJumping: {isJumping}\n";
-        debugInfo += $"Position: {transform.position}, Velocity: {rb.velocity}\n";
-        Debug.Log(debugInfo);
+        Debug.Log("Jump stopped");
     }
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + Vector3.down * 0.5f, groundCheckRadius);
+        Gizmos.color = Color.red;
+        Vector2 checkPosition = (Vector2)transform.position + groundCheckOffset;
+        Gizmos.DrawWireSphere(checkPosition, groundCheckRadius);
+
+        if (Application.isPlaying)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(
+                new Vector3(transform.position.x - 0.5f, jumpStartY + maxJumpHeight, 0),
+                new Vector3(transform.position.x + 0.5f, jumpStartY + maxJumpHeight, 0)
+            );
+        }
     }
 }
