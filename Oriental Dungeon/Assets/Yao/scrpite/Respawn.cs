@@ -106,7 +106,7 @@ public class RespawnSystem : MonoBehaviour
             if (hitCollider.CompareTag("SavePoint"))
             {
                 Vector3 savePosition = hitCollider.transform.position;
-                savePosition.z = 0f; // È·±£±£´æµÄÎ»ÖÃZÖáÎª0
+                savePosition.z = 0f; // È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½Zï¿½ï¿½Îª0
                 lastSavedPoint = new GameObject("SavedPoint").transform;
                 lastSavedPoint.position = savePosition;
                 Debug.Log("Checkpoint saved at: " + lastSavedPoint.position);
@@ -121,7 +121,7 @@ public class RespawnSystem : MonoBehaviour
         if (lastSavedPoint != null)
         {
             Vector3 savedPosition = lastSavedPoint.position;
-            savedPosition.z = 0f; // ÔÙ´ÎÈ·±£·µ»ØµÄÎ»ÖÃZÖáÎª0
+            savedPosition.z = 0f; // ï¿½Ù´ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½Î»ï¿½ï¿½Zï¿½ï¿½Îª0
             return savedPosition;
         }
         return Vector3.zero;

@@ -11,9 +11,12 @@ public class HealthManager : MonoBehaviour
     public UnityEvent<int, int> OnHealthChanged;
     public UnityEvent OnDeath;
 
+    private Vector3 initialPosition;
+
     private void Start()
     {
         currentHealth = maxHealth;
+        initialPosition = transform.position;
     }
 
     public void TakeDamage(int amount)
@@ -53,7 +56,7 @@ public class HealthManager : MonoBehaviour
         }
         else
         {
-            // Èç¹û¼È²»Ïú»ÙÒ²²»ÖØÉú£¬¿ÉÒÔÔÚÕâÀïÌí¼ÓÆäËûÂß¼­
+            // ï¿½ï¿½ï¿½ï¿½È²ï¿½ï¿½ï¿½ï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
             gameObject.SetActive(false);
         }
     }
@@ -63,7 +66,12 @@ public class HealthManager : MonoBehaviour
         if (RespawnSystem.Instance != null)
         {
             Vector3 respawnPosition = RespawnSystem.Instance.GetLastSavedPosition();
-            respawnPosition.z = 0f; // È·±£ZÖáÎª0
+            if (respawnPosition == Vector3.zero)
+            {
+                Debug.LogWarning("No valid respawn point found. Using initial position.");
+                respawnPosition = initialPosition;
+            }
+            respawnPosition.z = 0f; // ç¡®ä¿Zè½´ä¸º0
             transform.position = respawnPosition;
             currentHealth = maxHealth;
             OnHealthChanged?.Invoke(currentHealth, maxHealth);
@@ -71,7 +79,10 @@ public class HealthManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("RespawnSystem not found. Cannot respawn player.");
+            Debug.LogError("RespawnSystem not found. Respawning at initial position.");
+            transform.position = initialPosition;
+            currentHealth = maxHealth;
+            OnHealthChanged?.Invoke(currentHealth, maxHealth);
         }
     }
 
