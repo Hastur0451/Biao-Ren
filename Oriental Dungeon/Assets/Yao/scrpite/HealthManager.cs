@@ -11,9 +11,16 @@ public class HealthManager : MonoBehaviour
     public UnityEvent<int, int> OnHealthChanged; // 参数：当前血量，最大血量
     public UnityEvent OnDeath;
 
+    Animator animator;
+    private movecontrol moveControl;
+    private Rigidbody2D rb;
+
     private void Start()
     {
         currentHealth = maxHealth;
+        animator = GetComponent<Animator>();
+        moveControl = GetComponent<movecontrol>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     public void TakeDamage(int amount)
@@ -43,7 +50,10 @@ public class HealthManager : MonoBehaviour
     private void Die()
     {
         OnDeath?.Invoke();
-        Destroy(gameObject);
+        //Destroy(gameObject);
+        animator.SetTrigger("Die");
+        rb.velocity = Vector2.zero;
+        moveControl.enabled = false;
     }
 
     public int GetCurrentHealth() => currentHealth;
