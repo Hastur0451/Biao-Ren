@@ -6,10 +6,9 @@ public class CharacterAttack : MonoBehaviour
     public int attackDamage = 20;
     public float attackCooldown = 0.5f;
     public LayerMask enemyLayers;
-
     public Transform attackPoint;
-    private float nextAttackTime = 0f;
 
+    private float nextAttackTime = 0f;
     private movecontrol characterController;
     private Animator animator;
 
@@ -34,23 +33,24 @@ public class CharacterAttack : MonoBehaviour
     void Attack()
     {
         animator.SetTrigger("Attack");
+
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
 
-        // Damage them
-        foreach (Collider2D enemy in hitEnemies)
+        foreach (Collider2D enemyCollider in hitEnemies)
         {
-            Debug.Log("We hit " + enemy.name);
-            // You would call a TakeDamage() method on the enemy here
-            // enemy.GetComponent<Enemy>().TakeDamage(attackDamage);
+            EnemyController enemy = enemyCollider.GetComponent<EnemyController>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attackDamage);
+                Debug.Log("Hit " + enemy.name + " for " + attackDamage + " damage!");
+            }
         }
     }
 
-    // To visualize the attack range in the editor
     void OnDrawGizmosSelected()
     {
         if (attackPoint == null)
             return;
-
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 }
