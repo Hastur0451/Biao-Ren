@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -5,24 +7,27 @@ public class HealthManager : MonoBehaviour
 {
     [SerializeField] private int maxHealth = 5;
     [SerializeField] private int currentHealth;
-    [SerializeField] private bool destroyOnDeath = false;
-    [SerializeField] private bool respawnOnDeath = true;
 
-    public UnityEvent<int, int> OnHealthChanged;
+    public UnityEvent<int, int> OnHealthChanged; // ²ÎÊý£ºµ±Ç°ÑªÁ¿£¬×î´óÑªÁ¿
     public UnityEvent OnDeath;
 
-    private Vector3 initialPosition;
+    Animator animator;
+    private PlayerController moveControl;
+    private Rigidbody2D rb;
 
     private void Start()
     {
         currentHealth = maxHealth;
-        initialPosition = transform.position;
+        animator = GetComponent<Animator>();
+        moveControl = GetComponent<PlayerController>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     public void TakeDamage(int amount)
     {
         currentHealth = Mathf.Max(currentHealth - amount, 0);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
+
         if (currentHealth <= 0)
         {
             Die();
@@ -45,45 +50,10 @@ public class HealthManager : MonoBehaviour
     private void Die()
     {
         OnDeath?.Invoke();
-
-        if (destroyOnDeath)
-        {
-            Destroy(gameObject);
-        }
-        else if (respawnOnDeath)
-        {
-            Respawn();
-        }
-        else
-        {
-            // ï¿½ï¿½ï¿½ï¿½È²ï¿½ï¿½ï¿½ï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
-            gameObject.SetActive(false);
-        }
-    }
-
-    private void Respawn()
-    {
-        if (RespawnSystem.Instance != null)
-        {
-            Vector3 respawnPosition = RespawnSystem.Instance.GetLastSavedPosition();
-            if (respawnPosition == Vector3.zero)
-            {
-                Debug.LogWarning("No valid respawn point found. Using initial position.");
-                respawnPosition = initialPosition;
-            }
-            respawnPosition.z = 0f; // ç¡®ä¿Zè½´ä¸º0
-            transform.position = respawnPosition;
-            currentHealth = maxHealth;
-            OnHealthChanged?.Invoke(currentHealth, maxHealth);
-            Debug.Log("Player respawned at: " + transform.position);
-        }
-        else
-        {
-            Debug.LogError("RespawnSystem not found. Respawning at initial position.");
-            transform.position = initialPosition;
-            currentHealth = maxHealth;
-            OnHealthChanged?.Invoke(currentHealth, maxHealth);
-        }
+        //Destroy(gameObject);
+        animator.SetTrigger("Die");
+        rb.velocity = Vector2.zero;
+        moveControl.enabled = false;
     }
 
     public int GetCurrentHealth() => currentHealth;
