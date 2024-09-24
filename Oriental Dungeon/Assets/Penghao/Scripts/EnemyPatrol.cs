@@ -1,52 +1,193 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-public class EnemyPatrol : MonoBehaviour
+public class EnemyMovementController : MonoBehaviour
 {
-    [SerializeField] private Transform pointA;  // Aµã
-    [SerializeField] private Transform pointB;  // Bµã
-    [SerializeField] private float patrolSpeed = 2f;  // Ñ²ÂßËÙ¶È
-    [SerializeField] private LayerMask groundLayer;   // µØÃæ²ã
-
-    private Transform targetPoint;  // µ±Ç°Ä¿±êµã£¨A»òB£©
-    private bool facingRight = true;  // µÐÈËÊÇ·ñÃæ³¯ÓÒ
-
-    private void Start()
+    public enum MovementMode
     {
-        targetPoint = pointB;  // ³õÊ¼Ä¿±êÊÇBµã
+        Patrol,
+        Crawl
+    }
+
+    [SerializeField] private MovementMode currentMode = MovementMode.Patrol;
+    [SerializeField] private float moveSpeed = 2f;
+    [SerializeField] private float patrolDistance = 5f;
+
+    [Header("Crawl Path Settings")]
+    [SerializeField] private Vector2 crawlPathSize = new Vector2(1, 1);
+    [SerializeField] private Vector2 crawlPathOffset = Vector2.zero;
+
+    private Vector2 startPosition;
+    private Vector2 leftPatrolPoint;
+    private Vector2 rightPatrolPoint;
+    private bool movingRight = true;
+    private Rigidbody2D rb;
+
+    // çˆ¬è¡Œè·¯å¾„
+    private List<Vector2> crawlPath = new List<Vector2>();
+    private int currentPathIndex = 0;
+    private bool crawlDirectionClockwise = true;
+
+    private void Awake()
+    {
+        Flip();
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void OnValidate()
+    {
+        UpdatePatrolPoints();
+        if (currentMode == MovementMode.Crawl)
+        {
+            GenerateCrawlPath();
+        }
+    }
+
+    private void UpdatePatrolPoints()
+    {
+        startPosition = transform.position;
+        leftPatrolPoint = startPosition - new Vector2(patrolDistance / 2, 0);
+        rightPatrolPoint = startPosition + new Vector2(patrolDistance / 2, 0);
     }
 
     private void Update()
     {
-        PatrolBetweenPoints();
+        switch (currentMode)
+        {
+            case MovementMode.Patrol:
+                Patrol();
+                break;
+            case MovementMode.Crawl:
+                Crawl();
+                break;
+        }
     }
 
-    private void PatrolBetweenPoints()
+    private void Patrol()
     {
-        // µÐÈËÒÆ¶¯µ½Ä¿±êµã
-        transform.position = Vector2.MoveTowards(transform.position, targetPoint.position, patrolSpeed * Time.deltaTime);
+        Vector2 targetPoint = movingRight ? rightPatrolPoint : leftPatrolPoint;
+        transform.position = Vector2.MoveTowards(transform.position, targetPoint, moveSpeed * Time.deltaTime);
 
-        // Èç¹ûµÐÈËµ½´ïÄ¿±êµã£¬ÇÐ»»µ½ÁíÒ»¸öµã
-        if (Vector2.Distance(transform.position, targetPoint.position) < 0.1f)
+        if (Vector2.Distance(transform.position, targetPoint) < 0.1f)
         {
-            targetPoint = targetPoint == pointA ? pointB : pointA;
-            Flip();  // ·­×ªµÐÈËµÄ³¯Ïò
+            movingRight = !movingRight;
+            Flip();
+        }
+    }
+
+    private void Crawl()
+    {
+        if (crawlPath.Count == 0) return;
+
+        Vector2 targetPoint = crawlPath[currentPathIndex];
+        transform.position = Vector2.MoveTowards(transform.position, targetPoint, moveSpeed * Time.deltaTime);
+
+        if (Vector2.Distance(transform.position, targetPoint) < 0.1f)
+        {
+            currentPathIndex = crawlDirectionClockwise ? 
+                (currentPathIndex + 1) % crawlPath.Count : 
+                (currentPathIndex - 1 + crawlPath.Count) % crawlPath.Count;
+
+            UpdateRotation();
+        }
+    }
+
+    private void UpdateRotation()
+    {
+        if (crawlPath.Count < 2) return;
+
+        Vector2 nextPoint = crawlPath[(currentPathIndex + 1) % crawlPath.Count];
+        Vector2 direction = (nextPoint - (Vector2)transform.position).normalized;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0, 0, angle - 90);
+    }
+
+    private void GenerateCrawlPath()
+    {
+        crawlPath.Clear();
+        Vector2 centerOffset = transform.position + (Vector3)crawlPathOffset;
+
+        // ç”ŸæˆçŸ©å½¢è·¯å¾„çš„å››ä¸ªè§’ç‚¹
+        crawlPath.Add(centerOffset + new Vector2(-crawlPathSize.x / 2, -crawlPathSize.y / 2));
+        crawlPath.Add(centerOffset + new Vector2(-crawlPathSize.x / 2, crawlPathSize.y / 2));
+        crawlPath.Add(centerOffset + new Vector2(crawlPathSize.x / 2, crawlPathSize.y / 2));
+        crawlPath.Add(centerOffset + new Vector2(crawlPathSize.x / 2, -crawlPathSize.y / 2));
+
+        // è®¾ç½®åˆå§‹ä½ç½®å’Œæ—‹è½¬
+        if (crawlPath.Count > 0)
+        {
+            transform.position = crawlPath[0];
+            UpdateRotation();
         }
     }
 
     private void Flip()
     {
-        // ·´×ªµÐÈË³¯Ïò
-        facingRight = !facingRight;
         Vector3 localScale = transform.localScale;
-        localScale.x *= -1;  // ·­×ªXÖá
+        localScale.x *= -1;
         transform.localScale = localScale;
     }
 
     private void OnDrawGizmos()
     {
-        // ¿ÉÊÓ»¯AµãºÍBµã
-        Gizmos.color = Color.blue;
-        if (pointA != null) Gizmos.DrawWireSphere(pointA.position, 0.2f);
-        if (pointB != null) Gizmos.DrawWireSphere(pointB.position, 0.2f);
+        if (Application.isEditor && !Application.isPlaying)
+        {
+            UpdatePatrolPoints();
+        }
+
+        // ç»˜åˆ¶å·¡é€»è·¯å¾„
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(leftPatrolPoint, rightPatrolPoint);
+        Gizmos.DrawSphere(leftPatrolPoint, 0.2f);
+        Gizmos.DrawSphere(rightPatrolPoint, 0.2f);
+
+        // ç»˜åˆ¶çˆ¬è¡Œè·¯å¾„
+        if (currentMode == MovementMode.Crawl)
+        {
+            Gizmos.color = Color.green;
+            if (crawlPath.Count > 1)
+            {
+                for (int i = 0; i < crawlPath.Count; i++)
+                {
+                    Gizmos.DrawLine(crawlPath[i], crawlPath[(i + 1) % crawlPath.Count]);
+                }
+            }
+            else
+            {
+                // å¦‚æžœè·¯å¾„è¿˜æœªç”Ÿæˆï¼Œæ˜¾ç¤ºé¢„è§ˆ
+                Vector2 centerOffset = transform.position + (Vector3)crawlPathOffset;
+                Vector2 topLeft = centerOffset + new Vector2(-crawlPathSize.x / 2, crawlPathSize.y / 2);
+                Vector2 topRight = centerOffset + new Vector2(crawlPathSize.x / 2, crawlPathSize.y / 2);
+                Vector2 bottomLeft = centerOffset + new Vector2(-crawlPathSize.x / 2, -crawlPathSize.y / 2);
+                Vector2 bottomRight = centerOffset + new Vector2(crawlPathSize.x / 2, -crawlPathSize.y / 2);
+
+                Gizmos.DrawLine(topLeft, topRight);
+                Gizmos.DrawLine(topRight, bottomRight);
+                Gizmos.DrawLine(bottomRight, bottomLeft);
+                Gizmos.DrawLine(bottomLeft, topLeft);
+            }
+        }
+    }
+
+    public void SetMovementMode(MovementMode newMode)
+    {
+        currentMode = newMode;
+        if (newMode == MovementMode.Crawl)
+        {
+            rb.gravityScale = 0;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            GenerateCrawlPath();
+        }
+        else
+        {
+            rb.gravityScale = 1;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            transform.rotation = Quaternion.identity;
+        }
+    }
+
+    public void ToggleCrawlDirection()
+    {
+        crawlDirectionClockwise = !crawlDirectionClockwise;
     }
 }

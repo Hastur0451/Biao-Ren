@@ -4,8 +4,10 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Enemy
-  - Ground
+  - ground
+  - SavePoint
+  - Wood
+  - trap
   layers:
   - Default
   - TransparentFX
@@ -14,8 +16,8 @@ TagManager:
   - Water
   - UI
   - Ground
-  - Enemy
-  - 
+  - Wood
+  - Trap
   - 
   - 
   - 
