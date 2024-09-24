@@ -12,14 +12,14 @@ public class HealthManager : MonoBehaviour
     public UnityEvent OnDeath;
 
     Animator animator;
-    private movecontrol moveControl;
+    private PlayerController moveControl;
     private Rigidbody2D rb;
 
     private void Start()
     {
         currentHealth = maxHealth;
         animator = GetComponent<Animator>();
-        moveControl = GetComponent<movecontrol>();
+        moveControl = GetComponent<PlayerController>();
         rb = GetComponent<Rigidbody2D>();
     }
 

@@ -2,21 +2,31 @@ using UnityEngine;
 
 public class CharacterAttack : MonoBehaviour
 {
+    [Header("Attack Settings")]
     public float attackRange = 0.5f;
     public int attackDamage = 20;
     public float attackCooldown = 0.5f;
     public LayerMask enemyLayers;
-
     public Transform attackPoint;
-    private float nextAttackTime = 0f;
 
-    private movecontrol characterController;
+    [Header("Audio")]
+    public AudioClip attackSound;
+
+    private float nextAttackTime = 0f;
+    private PlayerController characterController;
     private Animator animator;
+    private AudioSource audioSource;
 
     void Start()
     {
-        characterController = GetComponent<movecontrol>();
+        characterController = GetComponent<PlayerController>();
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
+
+        if (attackPoint == null)
+        {
+            Debug.LogError("Attack point is not assigned in the inspector!");
+        }
     }
 
     void Update()
@@ -34,23 +44,26 @@ public class CharacterAttack : MonoBehaviour
     void Attack()
     {
         animator.SetTrigger("Attack");
+
+        if (audioSource != null && attackSound != null)
+        {
+            audioSource.PlayOneShot(attackSound);
+        }
+
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
 
-        // Damage them
         foreach (Collider2D enemy in hitEnemies)
         {
             Debug.Log("We hit " + enemy.name);
-            // You would call a TakeDamage() method on the enemy here
-            // enemy.GetComponent<Enemy>().TakeDamage(attackDamage);
         }
     }
 
-    // To visualize the attack range in the editor
     void OnDrawGizmosSelected()
     {
         if (attackPoint == null)
             return;
 
+        Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 }
