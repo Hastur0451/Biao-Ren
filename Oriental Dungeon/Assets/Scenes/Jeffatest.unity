@@ -288,6 +288,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   detectionRange: 8
   movementSpeed: 1.5
+  maxHealth: 100
+  hitFlashDuration: 0.1
+  hitColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!50 &185003793
 Rigidbody2D:
   serializedVersion: 4
@@ -4036,6 +4039,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   attackPoint: {fileID: 6264573659779469019}
+  attackSound: {fileID: 0}
 --- !u!1 &1364677791
 GameObject:
   m_ObjectHideFlags: 0
@@ -4051,6 +4055,7 @@ GameObject:
   - component: {fileID: 1364677797}
   - component: {fileID: 1364677796}
   - component: {fileID: 1364677798}
+  - component: {fileID: 1364677799}
   m_Layer: 7
   m_Name: Qu_0
   m_TagString: Enemy
@@ -4259,6 +4264,23 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &1364677799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1364677791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89957bd76afc196429eabcd52e33f5a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detectionRange: 0
+  movementSpeed: 2
+  maxHealth: 40
+  hitFlashDuration: 0.1
+  hitColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &1518273513
 GameObject:
   m_ObjectHideFlags: 0

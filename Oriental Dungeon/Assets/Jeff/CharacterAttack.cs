@@ -55,6 +55,15 @@ public class CharacterAttack : MonoBehaviour
         foreach (Collider2D enemy in hitEnemies)
         {
             Debug.Log("We hit " + enemy.name);
+            EnemyController enemyComponent = enemy.GetComponent<EnemyController>();
+            if (enemyComponent != null)
+            {
+                enemyComponent.TakeDamage(attackDamage);
+            }
+            else
+            {
+                Debug.LogWarning("Hit object " + enemy.name + " doesn't have an Enemy component!");
+            }
         }
     }
 
