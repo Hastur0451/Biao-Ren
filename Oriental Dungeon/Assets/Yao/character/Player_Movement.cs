@@ -1,19 +1,25 @@
 using UnityEngine;
+
 public class CharacterController2D : MonoBehaviour
 {
-    [Header("�ƶ�����")]
+    [Header("移动设置")]
     public float moveSpeed = 5f;
     public float airControlFactor = 0.5f;
-    [Header("��Ծ����")]
+
+    [Header("跳跃设置")]
     public float maxJumpHeight = 4f;
     public float timeToJumpApex = 0.4f;
     public float jumpCooldown = 0.2f;
-    [Header("������")]
+
+    [Header("地面检测")]
     public LayerMask groundLayer;
     public float groundCheckRadius = 0.1f;
     public Vector2 groundCheckOffset = new Vector2(0, -0.5f);
-    [Header("����")]
+
+    [Header("引用")]
     public Rigidbody2D rb;
+    private Animator animator;
+
     private bool isGrounded;
     private bool canJump = true;
     private float jumpVelocity;
@@ -27,6 +33,10 @@ public class CharacterController2D : MonoBehaviour
     {
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
+        
+        // 获取 Animator 组件
+        animator = GetComponent<Animator>();
+
         CalculateJumpParameters();
     }
 
@@ -40,6 +50,7 @@ public class CharacterController2D : MonoBehaviour
     private void Update()
     {
         CheckGrounded();
+
         if (movementEnabled)
         {
             HandleMovement();
@@ -49,12 +60,15 @@ public class CharacterController2D : MonoBehaviour
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
         }
+
+        UpdateAnimations();
     }
 
     private void CheckGrounded()
     {
         Vector2 checkPosition = (Vector2)transform.position + groundCheckOffset;
         isGrounded = Physics2D.OverlapCircle(checkPosition, groundCheckRadius, groundLayer);
+
         if (isGrounded)
         {
             isJumping = false;
@@ -70,6 +84,16 @@ public class CharacterController2D : MonoBehaviour
         float moveHorizontal = Input.GetAxisRaw("Horizontal");
         float currentMoveSpeed = isGrounded ? moveSpeed : moveSpeed * airControlFactor;
         rb.velocity = new Vector2(moveHorizontal * currentMoveSpeed, rb.velocity.y);
+
+        // 翻转角色方向
+        if (moveHorizontal < 0 && transform.localScale.x < 0)
+        {
+            Flip();
+        }
+        else if (moveHorizontal > 0 && transform.localScale.x > 0)
+        {
+            Flip();
+        }
     }
 
     private void HandleJump()
@@ -78,6 +102,7 @@ public class CharacterController2D : MonoBehaviour
         {
             StartJump();
         }
+
         if (isJumping)
         {
             if (transform.position.y - jumpStartY >= maxJumpHeight || rb.velocity.y <= 0)
@@ -95,6 +120,9 @@ public class CharacterController2D : MonoBehaviour
         jumpStartY = transform.position.y;
         rb.velocity = new Vector2(rb.velocity.x, jumpVelocity);
         Debug.Log($"Jump started. Velocity: {jumpVelocity}");
+
+        // 触发跳跃动画
+        animator.SetTrigger("Jump");
     }
 
     private void StopJump()
@@ -104,11 +132,36 @@ public class CharacterController2D : MonoBehaviour
         Debug.Log("Jump stopped");
     }
 
+    private void Flip()
+    {
+        // 翻转角色的 x 轴缩放
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+    }
+
+    private void UpdateAnimations()
+    {
+        // 更新跑步动画：只有在地面并且移动时才触发
+        float moveHorizontal = Mathf.Abs(Input.GetAxisRaw("Horizontal"));
+
+        if (isGrounded)
+        {
+            animator.SetBool("Run", moveHorizontal > 0.1f);
+        }
+        else
+        {
+            animator.SetBool("Run", false); // 确保在空中时不播放跑步动画
+        }
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Vector2 checkPosition = (Vector2)transform.position + groundCheckOffset;
         Gizmos.DrawWireSphere(checkPosition, groundCheckRadius);
+
+        // 可视化跳跃高度
         if (Application.isPlaying)
         {
             Gizmos.color = Color.green;
@@ -124,7 +177,7 @@ public class CharacterController2D : MonoBehaviour
         movementEnabled = enabled;
         if (!enabled)
         {
-            rb.velocity = new Vector2(0, rb.velocity.y);
+            rb.velocity = new Vector2(0, rb.velocity.y); // 禁用时停止水平移动
         }
     }
 }
