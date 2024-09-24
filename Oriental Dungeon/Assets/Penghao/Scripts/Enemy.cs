@@ -10,6 +10,7 @@ public class EnemyController : MonoBehaviour
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 100;
+    [SerializeField] public int currentHealth;
     [SerializeField] private float hitFlashDuration = 0.1f;
     [SerializeField] private Color hitColor = Color.red;
 
@@ -18,7 +19,6 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int attackDamage = 10;
     [SerializeField] private float attackCooldown = 1f;
 
-    private int currentHealth;
     private Transform player;
     private bool isPlayerInRange = false;
     private Animator animator;
@@ -89,7 +89,7 @@ public class EnemyController : MonoBehaviour
         if (Time.time >= lastAttackTime + attackCooldown)
         {
             lastAttackTime = Time.time;
-            animator?.SetTrigger("Attack");
+            //animator?.SetTrigger("Attack");
 
             // Apply damage to player
             HealthManager playerHealth = player.GetComponent<HealthManager>();
@@ -104,7 +104,7 @@ public class EnemyController : MonoBehaviour
     {
         currentHealth -= damage;
         StartCoroutine(HitFlash());
-        animator?.SetTrigger("Hurt");
+        //animator?.SetTrigger("Hurt");
 
         if (currentHealth <= 0)
         {
@@ -124,7 +124,7 @@ public class EnemyController : MonoBehaviour
 
     private void Die()
     {
-        animator?.SetTrigger("Die");
+        //animator?.SetTrigger("Die");
         this.enabled = false;
         GetComponent<Collider2D>().enabled = false;
         rb.velocity = Vector2.zero;
