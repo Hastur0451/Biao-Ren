@@ -7,6 +7,10 @@ public class ChargeBar : MonoBehaviour
     public float yOffset = 1.5f; // Adjust this to position the bar above the player's head
     public Vector2 sizeDelta = new Vector2(100, 10); // Width and height of the charge bar
 
+    [Header("Colors")]
+    public Color chargingColor = Color.yellow;
+    public Color chargeCompleteColor = Color.red;
+
     private CharacterAttack characterAttack;
     private RectTransform rectTransform;
     private Canvas canvas;
@@ -60,6 +64,9 @@ public class ChargeBar : MonoBehaviour
         {
             gameObject.SetActive(false);
         }
+
+        // Set initial color
+        fillImage.color = chargingColor;
     }
 
     private void OnDestroy()
@@ -74,6 +81,10 @@ public class ChargeBar : MonoBehaviour
     private void HandleChargingStateChanged(bool isCharging)
     {
         gameObject.SetActive(isCharging);
+        if (isCharging)
+        {
+            fillImage.color = chargingColor;
+        }
     }
 
     private void LateUpdate()
@@ -81,7 +92,14 @@ public class ChargeBar : MonoBehaviour
         if (characterAttack == null || !gameObject.activeSelf) return;
 
         // Update the fill amount of the charge bar
-        fillImage.fillAmount = characterAttack.ChargeProgress;
+        float chargeProgress = characterAttack.ChargeProgress;
+        fillImage.fillAmount = chargeProgress;
+
+        // Change color when charge is complete
+        if (chargeProgress >= 1f && fillImage.color != chargeCompleteColor)
+        {
+            fillImage.color = chargeCompleteColor;
+        }
 
         // Update the position of the charge bar to stay above the player's head
         Vector3 worldPosition = characterAttack.transform.position + Vector3.up * yOffset;

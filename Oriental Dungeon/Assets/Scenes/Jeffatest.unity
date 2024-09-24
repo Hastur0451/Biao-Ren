@@ -4043,7 +4043,7 @@ MonoBehaviour:
   heavyAttackDamage: 10
   heavyAttackCooldown: 1
   heavyAttackChargeTime: 1
-  heavyAttackDelay: 0.5
+  heavyAttackDelay: 0.75
   knockbackForce: 20
   enemyLayers:
     serializedVersion: 2
@@ -4724,8 +4724,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fillImage: {fileID: 1681932759}
-  yOffset: 1
-  sizeDelta: {x: 100, y: 10}
+  yOffset: 1.2
+  sizeDelta: {x: 60, y: 5}
 --- !u!1 &1745478776
 GameObject:
   m_ObjectHideFlags: 0
