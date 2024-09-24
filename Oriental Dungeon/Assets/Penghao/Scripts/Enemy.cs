@@ -27,6 +27,7 @@ public class EnemyController : MonoBehaviour
     private Color originalColor;
     private Vector2 knockbackForce;
     private float lastAttackTime;
+    private bool isFacingRight = false;
 
     private void Start()
     {
@@ -77,11 +78,25 @@ public class EnemyController : MonoBehaviour
         Vector2 direction = (player.position - transform.position).normalized;
         rb.velocity = direction * movementSpeed;
 
-        // Flip sprite based on movement direction
-        if (spriteRenderer != null)
+        // Check if we need to flip the sprite
+        if (direction.x > 0 && !isFacingRight)
         {
-            spriteRenderer.flipX = direction.x < 0;
+            Flip();
         }
+        else if (direction.x < 0 && isFacingRight)
+        {
+            Flip();
+        }
+    }
+
+    private void Flip()
+    {
+        isFacingRight = !isFacingRight;
+
+        // Flip the enemy's local scale
+        Vector3 theScale = transform.localScale;
+        theScale.x *= -1;
+        transform.localScale = theScale;
     }
 
     private void AttackPlayer()
