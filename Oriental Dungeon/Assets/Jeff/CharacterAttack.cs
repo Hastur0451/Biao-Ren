@@ -1,31 +1,65 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterAttack : MonoBehaviour
 {
-    [Header("Attack Settings")]
-    public float attackRange = 0.5f;
+    [Header("Normal Attack Settings")]
     public int attackDamage = 20;
     public float attackCooldown = 0.5f;
-    public LayerMask enemyLayers;
-    public Transform attackPoint;
+    public float normalAttackDuration = 0.2f;
+
+    [Header("Heavy Attack Settings")]
+    public int heavyAttackDamage = 40;
+    public float heavyAttackCooldown = 1f;
+    public float heavyAttackChargeTime = 0.5f;
+    public float heavyAttackDelay = 0.5f;
+    public float heavyAttackDuration = 0.3f;
+    public float knockbackForce = 10f;
 
     [Header("Audio")]
-    public AudioClip attackSound;
+    public AudioClip normalAttackSound;
+    public AudioClip heavyAttackSound;
 
     private float nextAttackTime = 0f;
-    private PlayerController characterController;
+    public float mouseHoldStartTime;
+    private bool isChargingHeavyAttack = false;
+    private bool isPerformingHeavyAttack = false;
+    public event Action<bool> OnChargingStateChanged;
+
     private Animator animator;
     private AudioSource audioSource;
+    private PolygonCollider2D hitbox;
+    private HashSet<Collider2D> hitEnemies = new HashSet<Collider2D>();
+
+    public bool IsChargingHeavyAttack
+    {
+        get => isChargingHeavyAttack;
+        private set
+        {
+            if (isChargingHeavyAttack != value)
+            {
+                isChargingHeavyAttack = value;
+                OnChargingStateChanged?.Invoke(value);
+            }
+        }
+    }
+    public float ChargeProgress => IsChargingHeavyAttack ? Mathf.Clamp01((Time.time - mouseHoldStartTime) / heavyAttackChargeTime) : 0f;
 
     void Start()
     {
-        characterController = GetComponent<PlayerController>();
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+        hitbox = GetComponentInChildren<PolygonCollider2D>();
 
-        if (attackPoint == null)
+        if (hitbox == null)
         {
-            Debug.LogError("Attack point is not assigned in the inspector!");
+            Debug.LogError("PolygonCollider2D not found on child object!");
+        }
+        else
+        {
+            hitbox.enabled = false;
         }
     }
 
@@ -33,46 +67,91 @@ public class CharacterAttack : MonoBehaviour
     {
         if (Time.time >= nextAttackTime)
         {
-            if (Input.GetMouseButtonDown(0)) // 0 represents the left mouse button
+            if (Input.GetMouseButtonDown(0))
             {
-                Attack();
-                nextAttackTime = Time.time + attackCooldown;
+                mouseHoldStartTime = Time.time;
+                IsChargingHeavyAttack = true;
+            }
+            else if (Input.GetMouseButton(0) && IsChargingHeavyAttack)
+            {
+                // Continue charging
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                if (IsChargingHeavyAttack)
+                {
+                    if (ChargeProgress >= 1f)
+                    {
+                        StartCoroutine(DelayedHeavyAttack());
+                    }
+                    else
+                    {
+                        NormalAttack();
+                    }
+                    IsChargingHeavyAttack = false;
+                }
             }
         }
     }
 
-    void Attack()
+    void NormalAttack()
     {
         animator.SetTrigger("Attack");
+        PlaySound(normalAttackSound);
+        StartCoroutine(PerformAttack(normalAttackDuration, false));
+        nextAttackTime = Time.time + attackCooldown;
+    }
 
-        if (audioSource != null && attackSound != null)
+    private IEnumerator DelayedHeavyAttack()
+    {
+        animator?.SetTrigger("HeavyAttack");
+        yield return new WaitForSeconds(heavyAttackDelay);
+        ExecuteHeavyAttack();
+    }
+
+    private void ExecuteHeavyAttack()
+    {
+        PlaySound(heavyAttackSound);
+        StartCoroutine(PerformAttack(heavyAttackDuration, true));
+        nextAttackTime = Time.time + heavyAttackCooldown;
+    }
+
+    private IEnumerator PerformAttack(float duration, bool isHeavyAttack)
+    {
+        isPerformingHeavyAttack = isHeavyAttack;
+        hitbox.enabled = true;
+        hitEnemies.Clear(); // Clear the list of hit enemies at the start of each attack
+        yield return new WaitForSeconds(duration);
+        hitbox.enabled = false;
+        isPerformingHeavyAttack = false;
+    }
+
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if (other.CompareTag("Enemy") && !hitEnemies.Contains(other))
         {
-            audioSource.PlayOneShot(attackSound);
-        }
-
-        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
-
-        foreach (Collider2D enemy in hitEnemies)
-        {
-            Debug.Log("We hit " + enemy.name);
-            EnemyController enemyComponent = enemy.GetComponent<EnemyController>();
-            if (enemyComponent != null)
+            EnemyController enemyController = other.GetComponent<EnemyController>();
+            if (enemyController != null)
             {
-                enemyComponent.TakeDamage(attackDamage);
-            }
-            else
-            {
-                Debug.LogWarning("Hit object " + enemy.name + " doesn't have an Enemy component!");
+                int damage = isPerformingHeavyAttack ? heavyAttackDamage : attackDamage;
+                enemyController.TakeDamage(damage);
+
+                if (isPerformingHeavyAttack)
+                {
+                    Vector2 knockbackDirection = (other.transform.position - transform.position).normalized;
+                    enemyController.Knockback(knockbackDirection * knockbackForce);
+                }
+
+                hitEnemies.Add(other); // Add the enemy to the list of hit enemies
             }
         }
     }
 
-    void OnDrawGizmosSelected()
+    void PlaySound(AudioClip clip)
     {
-        if (attackPoint == null)
-            return;
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
     }
 }
