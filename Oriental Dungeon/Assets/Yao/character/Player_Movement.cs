@@ -18,7 +18,7 @@ public class CharacterController2D : MonoBehaviour
 
     [Header("引用")]
     public Rigidbody2D rb;
-    private Animator animator;
+    public bool IsMovementEnabled() => movementEnabled;
 
     private bool isGrounded;
     private bool canJump = true;
@@ -28,14 +28,13 @@ public class CharacterController2D : MonoBehaviour
     private bool isJumping;
     private float jumpStartY;
     private bool movementEnabled = true;
+    private float moveHorizontal;
+    private bool isFacingRight = true;
 
     private void Start()
     {
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
-        
-        // 获取 Animator 组件
-        animator = GetComponent<Animator>();
 
         CalculateJumpParameters();
     }
@@ -53,15 +52,18 @@ public class CharacterController2D : MonoBehaviour
 
         if (movementEnabled)
         {
-            HandleMovement();
-            HandleJump();
+            HandleMovementInput();
+            HandleJumpInput();
         }
         else
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
         }
+    }
 
-        UpdateAnimations();
+    private void FixedUpdate()
+    {
+        ApplyMovement();
     }
 
     private void CheckGrounded()
@@ -79,26 +81,29 @@ public class CharacterController2D : MonoBehaviour
         }
     }
 
-    private void HandleMovement()
+    private void HandleMovementInput()
     {
-        float moveHorizontal = Input.GetAxisRaw("Horizontal");
-        float currentMoveSpeed = isGrounded ? moveSpeed : moveSpeed * airControlFactor;
-        rb.velocity = new Vector2(moveHorizontal * currentMoveSpeed, rb.velocity.y);
+        moveHorizontal = Input.GetAxisRaw("Horizontal");
 
-        // 翻转角色方向
-        if (moveHorizontal < 0 && transform.localScale.x < 0)
+        if (moveHorizontal < 0 && isFacingRight)
         {
             Flip();
         }
-        else if (moveHorizontal > 0 && transform.localScale.x > 0)
+        else if (moveHorizontal > 0 && !isFacingRight)
         {
             Flip();
         }
     }
 
-    private void HandleJump()
+    private void ApplyMovement()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && canJump)
+        float currentMoveSpeed = isGrounded ? moveSpeed : moveSpeed * airControlFactor;
+        rb.velocity = new Vector2(moveHorizontal * currentMoveSpeed, rb.velocity.y);
+    }
+
+    private void HandleJumpInput()
+    {
+        if (Input.GetButtonDown("Jump") && isGrounded && canJump)
         {
             StartJump();
         }
@@ -119,40 +124,20 @@ public class CharacterController2D : MonoBehaviour
         lastJumpTime = Time.time;
         jumpStartY = transform.position.y;
         rb.velocity = new Vector2(rb.velocity.x, jumpVelocity);
-        Debug.Log($"Jump started. Velocity: {jumpVelocity}");
-
-        // 触发跳跃动画
-        animator.SetTrigger("Jump");
     }
 
     private void StopJump()
     {
         isJumping = false;
         rb.velocity = new Vector2(rb.velocity.x, Mathf.Min(rb.velocity.y, 0));
-        Debug.Log("Jump stopped");
     }
 
     private void Flip()
     {
-        // 翻转角色的 x 轴缩放
+        isFacingRight = !isFacingRight;
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
-    }
-
-    private void UpdateAnimations()
-    {
-        // 更新跑步动画：只有在地面并且移动时才触发
-        float moveHorizontal = Mathf.Abs(Input.GetAxisRaw("Horizontal"));
-
-        if (isGrounded)
-        {
-            animator.SetBool("Run", moveHorizontal > 0.1f);
-        }
-        else
-        {
-            animator.SetBool("Run", false); // 确保在空中时不播放跑步动画
-        }
     }
 
     private void OnDrawGizmos()
@@ -160,16 +145,6 @@ public class CharacterController2D : MonoBehaviour
         Gizmos.color = Color.red;
         Vector2 checkPosition = (Vector2)transform.position + groundCheckOffset;
         Gizmos.DrawWireSphere(checkPosition, groundCheckRadius);
-
-        // 可视化跳跃高度
-        if (Application.isPlaying)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(
-                new Vector3(transform.position.x - 0.5f, jumpStartY + maxJumpHeight, 0),
-                new Vector3(transform.position.x + 0.5f, jumpStartY + maxJumpHeight, 0)
-            );
-        }
     }
 
     public void SetMovementEnabled(bool enabled)
@@ -177,7 +152,12 @@ public class CharacterController2D : MonoBehaviour
         movementEnabled = enabled;
         if (!enabled)
         {
-            rb.velocity = new Vector2(0, rb.velocity.y); // 禁用时停止水平移动
+            rb.velocity = new Vector2(0, rb.velocity.y);
         }
     }
+
+    // Animation-related methods
+    public bool IsMoving() => Mathf.Abs(moveHorizontal) > 0.1f;
+    public bool IsGrounded() => isGrounded;
+    public bool IsJumping() => isJumping;
 }

@@ -4284,6 +4284,7 @@ GameObject:
   - component: {fileID: 1023759187}
   - component: {fileID: 1023759190}
   - component: {fileID: 1023759189}
+  - component: {fileID: 1023759192}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -4389,10 +4390,14 @@ MonoBehaviour:
   currentHealth: 0
   destroyOnDeath: 0
   respawnOnDeath: 1
+  respawnDelay: 2
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
   OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRespawn:
     m_PersistentCalls:
       m_Calls: []
 --- !u!61 &1023759187
@@ -4513,6 +4518,18 @@ MonoBehaviour:
     m_Bits: 128
   attackPoint: {fileID: 1063802393}
   attackSound: {fileID: 0}
+--- !u!114 &1023759192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023759179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02d5c83a5cdcc5f44ae9e4c7284cbecf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1025376643
 GameObject:
   m_ObjectHideFlags: 0
@@ -10776,7 +10793,7 @@ Transform:
   m_GameObject: {fileID: 1586694795}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -39.42, y: 6.41, z: 0.5}
+  m_LocalPosition: {x: -37.86, y: 6.41, z: 0.5}
   m_LocalScale: {x: 1.4545, y: 1.4545, z: 1.4545}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12143,10 +12160,14 @@ MonoBehaviour:
   currentHealth: 5
   destroyOnDeath: 0
   respawnOnDeath: 1
+  respawnDelay: 2
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
   OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRespawn:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &1893308963
