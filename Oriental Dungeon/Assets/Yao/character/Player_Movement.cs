@@ -85,11 +85,11 @@ public class CharacterController2D : MonoBehaviour
     {
         moveHorizontal = Input.GetAxisRaw("Horizontal");
 
-        if (moveHorizontal < 0 && isFacingRight)
+        if (moveHorizontal > 0 && isFacingRight)
         {
             Flip();
         }
-        else if (moveHorizontal > 0 && !isFacingRight)
+        else if (moveHorizontal < 0 && !isFacingRight)
         {
             Flip();
         }

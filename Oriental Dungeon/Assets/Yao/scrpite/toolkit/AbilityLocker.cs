@@ -2,16 +2,22 @@ using UnityEngine;
 
 public class AbilityUnlocker : MonoBehaviour
 {
-    [Header("Movement Settings")]
-    public float bobSpeed = 1f;     // 上下晃动的速度
-    public float bobHeight = 0.5f;  // 上下晃动的高度
-
-    [Header("Ability Settings")]
+    [Header("Interaction Settings")]
     public string playerTag = "Player";
-    public MonoBehaviour abilityScriptToActivate;  // 要激活的能力脚本
+    public GameObject targetObject; // 要激活或不激活的游戏对象
+    public enum UnlockAction { Activate, Deactivate }
+    public UnlockAction actionOnUnlock = UnlockAction.Activate; // 解锁时执行的动作
+
+    [Header("Behavior Settings")]
+    public bool destroySelfOnUnlock = true; // 是否在解锁后销毁自身
+    public bool enableBobbing = true; // 是否启用上下晃动
+
+    [Header("Movement Settings")]
+    public float bobSpeed = 1f;
+    public float bobHeight = 0.5f;
 
     [Header("Audio Settings")]
-    public AudioClip unlockSound;  // 解锁音效
+    public AudioClip unlockSound;
 
     private Vector3 startPosition;
     private float bobTime;
@@ -25,11 +31,24 @@ public class AbilityUnlocker : MonoBehaviour
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
+
+        // 初始化目标对象的状态
+        if (targetObject != null)
+        {
+            targetObject.SetActive(actionOnUnlock == UnlockAction.Deactivate);
+        }
     }
 
     private void Update()
     {
-        // 实现上下晃动
+        if (enableBobbing)
+        {
+            PerformBobbing();
+        }
+    }
+
+    private void PerformBobbing()
+    {
         bobTime += Time.deltaTime * bobSpeed;
         float yOffset = Mathf.Sin(bobTime) * bobHeight;
         transform.position = startPosition + new Vector3(0f, yOffset, 0f);
@@ -45,18 +64,40 @@ public class AbilityUnlocker : MonoBehaviour
 
     private void UnlockAbility()
     {
-        if (abilityScriptToActivate != null)
+        if (targetObject != null)
         {
-            abilityScriptToActivate.enabled = true;
-            Debug.Log($"Ability {abilityScriptToActivate.GetType().Name} unlocked!");
+            // 执行相反的动作，然后设置为目标状态
+            targetObject.SetActive(actionOnUnlock == UnlockAction.Deactivate);
+            
+            switch (actionOnUnlock)
+            {
+                case UnlockAction.Activate:
+                    targetObject.SetActive(true);
+                    Debug.Log($"GameObject '{targetObject.name}' has been activated!");
+                    break;
+                case UnlockAction.Deactivate:
+                    targetObject.SetActive(false);
+                    Debug.Log($"GameObject '{targetObject.name}' has been deactivated!");
+                    break;
+            }
         }
         else
         {
-            Debug.LogWarning("No ability script assigned to unlock!");
+            Debug.LogWarning("No target GameObject assigned!");
         }
 
         PlayUnlockSound();
-        Destroy(gameObject);
+
+        if (destroySelfOnUnlock)
+        {
+            Destroy(gameObject);
+        }
+        else if (enableBobbing)
+        {
+            // 如果不销毁自身但启用了晃动，我们需要停止晃动
+            enableBobbing = false;
+            transform.position = startPosition; // 重置位置
+        }
     }
 
     private void PlayUnlockSound()
@@ -67,9 +108,16 @@ public class AbilityUnlocker : MonoBehaviour
         }
     }
 
-    // 公共方法，用于外部设置要激活的能力脚本
-    public void SetAbilityToUnlock(MonoBehaviour abilityScript)
+    // 公共方法，用于外部设置目标游戏对象和动作
+    public void SetTargetObject(GameObject obj, UnlockAction action)
     {
-        abilityScriptToActivate = abilityScript;
+        targetObject = obj;
+        actionOnUnlock = action;
+        
+        // 设置初始状态
+        if (targetObject != null)
+        {
+            targetObject.SetActive(action == UnlockAction.Deactivate);
+        }
     }
 }
