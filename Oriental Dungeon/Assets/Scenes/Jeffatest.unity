@@ -354,7 +354,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.0124332905, y: -0.002072215}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -365,7 +365,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.82, y: 0.57}
+  m_Size: {x: 0.24807405, y: 0.40008044}
   m_EdgeRadius: 0
 --- !u!95 &185003795
 Animator:
@@ -4018,7 +4018,7 @@ Transform:
   m_GameObject: {fileID: 1140643465}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.025, z: 0}
+  m_LocalPosition: {x: 0, y: 0.0089, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4036,12 +4036,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83d2c403612125f4abb9def0615f93b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRange: 0.75
+  attackRange: 2.25
   attackDamage: 10
   attackCooldown: 0.75
-  heavyAttackRange: 0.7
+  heavyAttackRange: 2.25
   heavyAttackDamage: 10
-  heavyAttackCooldown: 1
+  heavyAttackCooldown: 0
   heavyAttackChargeTime: 1
   heavyAttackDelay: 0.75
   knockbackForce: 20
@@ -4218,7 +4218,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.06984997, y: -0.041909754}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -4229,7 +4229,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.1875, y: 0.4375}
+  m_Size: {x: 2.0478, y: 0.3536805}
   m_EdgeRadius: 0
 --- !u!50 &1364677797
 Rigidbody2D:
@@ -4257,7 +4257,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 4
+  m_Constraints: 6
 --- !u!114 &1364677798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4422,37 +4422,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!1 &1567584953
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1567584954}
-  m_Layer: 0
-  m_Name: WallCheck
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1567584954
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1567584953}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.174, y: 0.243, z: -0.005}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7671547644585092725}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1609495012
 GameObject:
   m_ObjectHideFlags: 0
@@ -4724,8 +4693,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fillImage: {fileID: 1681932759}
-  yOffset: 1.2
-  sizeDelta: {x: 60, y: 5}
+  yOffset: 3
+  sizeDelta: {x: 75, y: 5}
+  chargingColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chargeCompleteColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &1745478776
 GameObject:
   m_ObjectHideFlags: 0
@@ -8046,13 +8017,12 @@ Transform:
   m_GameObject: {fileID: 4660952014583489745}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.008726557, z: -0, w: 0.9999619}
-  m_LocalPosition: {x: 3, y: -2.368, z: 0.00015256465}
-  m_LocalScale: {x: 1.5000001, y: 1.5, z: 1}
+  m_LocalPosition: {x: 3, y: -2.374, z: 0.00015256465}
+  m_LocalScale: {x: 5, y: 5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3677233779047619993}
   - {fileID: 1140643466}
-  - {fileID: 1567584954}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7773289745700904983
@@ -8252,8 +8222,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  jumpForce: 5
-  groundCheckRadius: 0.05
+  jumpForce: 8
+  groundCheckRadius: 0.1
   GroundLayer:
     serializedVersion: 2
     m_Bits: 64
