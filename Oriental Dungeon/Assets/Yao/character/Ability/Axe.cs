@@ -9,7 +9,8 @@ public class FlyingAxe : MonoBehaviour
     public string playerTag = "Player";
     public float axeSpawnRadius = 1.5f;
     public Camera mainCamera;
-    public CharacterController2D playerController; // 直接引用玩家控制器
+    public CharacterController2D playerController;
+    public Vector2 platformSize = new Vector2(1f, 0.1f); // 新增：平台尺寸设置
 
     private GameObject currentAxe;
     private LineRenderer aimLine;
@@ -137,7 +138,7 @@ public class FlyingAxe : MonoBehaviour
         currentAxe = Instantiate(axePrefab, spawnPosition, Quaternion.identity);
         
         AxeBehavior axeBehavior = currentAxe.AddComponent<AxeBehavior>();
-        axeBehavior.Initialize(this, woodLayer, playerTag, throwDirection);
+        axeBehavior.Initialize(this, woodLayer, playerTag, throwDirection, platformSize);
     }
 
     void OnDrawGizmosSelected()
@@ -153,18 +154,22 @@ public class AxeBehavior : MonoBehaviour
     private LayerMask woodLayer;
     private string playerTag;
     private Vector2 throwDirection;
+    private Vector2 platformSize;
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
     private BoxCollider2D axeCollider;
     private bool isStuck = false;
     private float rotationSpeed = 720f;
+    private GameObject platform;
+    private const string GROUND_LAYER_NAME = "Ground";
 
-    public void Initialize(FlyingAxe parent, LayerMask wood, string playerTagName, Vector2 direction)
+    public void Initialize(FlyingAxe parent, LayerMask wood, string playerTagName, Vector2 direction, Vector2 platSize)
     {
         parentScript = parent;
         woodLayer = wood;
         playerTag = playerTagName;
         throwDirection = direction;
+        platformSize = platSize;
         SetupComponents();
     }
 
@@ -175,7 +180,6 @@ public class AxeBehavior : MonoBehaviour
         {
             spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
         }
-        spriteRenderer.flipX = throwDirection.x < 0;
 
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
@@ -185,14 +189,13 @@ public class AxeBehavior : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
 
-        // 使用默认的 BoxCollider2D
         axeCollider = GetComponent<BoxCollider2D>();
         if (axeCollider == null)
         {
             axeCollider = gameObject.AddComponent<BoxCollider2D>();
         }
-        axeCollider.size = new Vector2(0.5f, 0.5f); // 调整大小以适应斧头
-        axeCollider.isTrigger = true; // 设置为触发器
+        axeCollider.size = new Vector2(0.5f, 0.5f);
+        axeCollider.isTrigger = true;
 
         // 设置初始旋转
         float angle = Mathf.Atan2(throwDirection.y, throwDirection.x) * Mathf.Rad2Deg - 90f;
@@ -206,7 +209,9 @@ public class AxeBehavior : MonoBehaviour
     {
         if (!isStuck)
         {
-            transform.Rotate(0, 0, rotationSpeed * Time.deltaTime);
+            // 飞行时旋转
+            float rotationDirection = throwDirection.x < 0 ? -1 : 1;
+            transform.Rotate(0, 0, rotationSpeed * Time.deltaTime * rotationDirection);
         }
     }
 
@@ -228,39 +233,47 @@ public class AxeBehavior : MonoBehaviour
     {
         isStuck = true;
         rb.velocity = Vector2.zero;
-        rb.angularVelocity = 0f;
         rb.isKinematic = true;
 
-        // 恢复到初始状态
-        transform.rotation = Quaternion.identity;
-        if (throwDirection.x < 0)
-        {
-            transform.Rotate(0, 0, 180f);
-        }
+        // 计算碰撞点
+        Vector2 collisionPoint = collision.ClosestPoint(transform.position);
 
-        // 调整位置
-        Vector2 hitPoint = collision.ClosestPoint(transform.position);
-        Vector2 hitNormal = (Vector2)transform.position - hitPoint;
-        hitNormal.Normalize();
-        Vector2 adjustedPosition = hitPoint + hitNormal * 0.1f;
-        transform.position = adjustedPosition;
+        // 生成向上的平台
+        platform = new GameObject("AxePlatform");
+        platform.transform.position = collisionPoint + Vector2.up * (platformSize.y / 2);
+        platform.transform.SetParent(collision.transform);
 
-        transform.SetParent(collision.transform);
+        // 设置平台的图层为 Ground
+        platform.layer = LayerMask.NameToLayer(GROUND_LAYER_NAME);
 
-        // 移除 BoxCollider2D
-        Destroy(axeCollider);
+        // 添加平台组件
+        BoxCollider2D platformCollider = platform.AddComponent<BoxCollider2D>();
+        platformCollider.size = platformSize;
+        platformCollider.offset = Vector2.zero;
 
-        // 添加单向平台
-        PlatformEffector2D platformEffector = gameObject.AddComponent<PlatformEffector2D>();
+        PlatformEffector2D platformEffector = platform.AddComponent<PlatformEffector2D>();
         platformEffector.useOneWay = true;
         platformEffector.useOneWayGrouping = true;
         platformEffector.surfaceArc = 170f;
 
-        BoxCollider2D platformCollider = gameObject.AddComponent<BoxCollider2D>();
-        platformCollider.size = new Vector2(3f, 0.5f);
-        platformCollider.offset = new Vector2(0f, 0.05f);
-        platformCollider.usedByEffector = true;
+        // 调整斧头位置和旋转以匹配平台
+        transform.position = platform.transform.position + Vector3.up * (platformSize.y / 2);
+        transform.rotation = Quaternion.identity; // 重置旋转
+        transform.SetParent(platform.transform);
 
+        // 禁用斧头的碰撞器
+        axeCollider.enabled = false;
+
+        // 确保精灵渲染器朝向正确
         spriteRenderer.flipY = false;
+    }
+
+    void OnDestroy()
+    {
+        // 当斧头被销毁时，同时销毁平台
+        if (platform != null)
+        {
+            Destroy(platform);
+        }
     }
 }

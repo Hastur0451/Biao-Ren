@@ -76,7 +76,7 @@ public class AbilityUnlocker : MonoBehaviour
                     Debug.Log($"GameObject '{targetObject.name}' has been activated!");
                     break;
                 case UnlockAction.Deactivate:
-                    targetObject.SetActive(false);
+                    Destroy(targetObject);
                     Debug.Log($"GameObject '{targetObject.name}' has been deactivated!");
                     break;
             }
