@@ -13,6 +13,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField] public int currentHealth;
     [SerializeField] private float hitFlashDuration = 0.1f;
     [SerializeField] private Color hitColor = Color.red;
+    private HealthManager healthManager;
 
     [Header("Attack")]
     [SerializeField] private float attackRange = 1f;
@@ -35,10 +36,21 @@ public class EnemyController : MonoBehaviour
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
+        healthManager = GetComponent<HealthManager>();
 
         if (spriteRenderer != null) originalColor = spriteRenderer.color;
-        currentHealth = maxHealth;
         lastAttackTime = -attackCooldown;
+
+        // Subscribe to health change events
+        if (healthManager != null)
+        {
+            healthManager.OnHealthChanged.AddListener(OnHealthChanged);
+            healthManager.OnDeath.AddListener(OnEnemyDeath);
+        }
+        else
+        {
+            Debug.LogError("HealthManager component not found on the enemy!");
+        }
     }
 
     private void Update()
@@ -73,6 +85,17 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    private void OnHealthChanged(int currentHealth, int maxHealth)
+    {
+        // Handle health changes here if needed
+        Debug.Log($"Enemy health changed: {currentHealth}/{maxHealth}");
+    }
+
+    private void OnEnemyDeath()
+    {
+        // Handle enemy death here
+        Die();
+    }
     private void ChasePlayer()
     {
         Vector2 direction = (player.position - transform.position).normalized;
@@ -104,26 +127,34 @@ public class EnemyController : MonoBehaviour
         if (Time.time >= lastAttackTime + attackCooldown)
         {
             lastAttackTime = Time.time;
-            //animator?.SetTrigger("Attack");
+            animator?.SetTrigger("Attack");
 
-            // Apply damage to player
-            HealthManager playerHealth = player.GetComponent<HealthManager>();
-            if (playerHealth != null)
+            // Check if player is still in range before applying damage
+            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+            if (distanceToPlayer <= attackRange)
             {
-                playerHealth.TakeDamage(attackDamage);
+                // Apply damage to player
+                HealthManager playerHealth = player.GetComponent<HealthManager>();
+                if (playerHealth != null)
+                {
+                    playerHealth.TakeDamage(attackDamage);
+                    Debug.Log($"Enemy attacked player for {attackDamage} damage. Player health: {playerHealth.GetCurrentHealth()}/{playerHealth.GetMaxHealth()}");
+                }
+                else
+                {
+                    Debug.LogWarning("Player does not have a HealthManager component");
+                }
             }
         }
     }
 
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
-        StartCoroutine(HitFlash());
-        //animator?.SetTrigger("Hurt");
-
-        if (currentHealth <= 0)
+        if (healthManager != null)
         {
-            Die();
+            healthManager.TakeDamage(damage);
+            StartCoroutine(HitFlash());
+            animator?.SetTrigger("Hurt");
         }
     }
 
@@ -139,7 +170,7 @@ public class EnemyController : MonoBehaviour
 
     private void Die()
     {
-        //animator?.SetTrigger("Die");
+        animator?.SetTrigger("Die");
         this.enabled = false;
         GetComponent<Collider2D>().enabled = false;
         rb.velocity = Vector2.zero;
@@ -164,5 +195,15 @@ public class EnemyController : MonoBehaviour
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from events to prevent memory leaks
+        if (healthManager != null)
+        {
+            healthManager.OnHealthChanged.RemoveListener(OnHealthChanged);
+            healthManager.OnDeath.RemoveListener(OnEnemyDeath);
+        }
     }
 }
