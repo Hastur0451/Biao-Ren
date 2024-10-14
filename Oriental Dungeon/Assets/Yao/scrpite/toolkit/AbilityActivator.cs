@@ -5,15 +5,12 @@ public class AbilityActivator : MonoBehaviour
     [Header("Interaction Settings")]
     public string playerTag = "Player";
     public GameObject objectToActivate;
-
     [Header("Behavior Settings")]
     public bool destroySelfOnActivate = true;
     public bool enableBobbing = true;
-
     [Header("Movement Settings")]
     public float bobSpeed = 1f;
     public float bobHeight = 0.5f;
-
     [Header("Audio Settings")]
     public AudioClip activationSound;
 
@@ -50,11 +47,11 @@ public class AbilityActivator : MonoBehaviour
     {
         if (collision.CompareTag(playerTag))
         {
-            ActivateObject();
+            ActivateObject(collision.gameObject);
         }
     }
 
-    private void ActivateObject()
+    private void ActivateObject(GameObject player)
     {
         if (objectToActivate != null)
         {
@@ -64,6 +61,18 @@ public class AbilityActivator : MonoBehaviour
         else
         {
             Debug.LogWarning("No GameObject assigned to activate!");
+        }
+
+        // Enable CharacterAttack script on the player
+        CharacterAttack characterAttack = player.GetComponent<CharacterAttack>();
+        if (characterAttack != null)
+        {
+            characterAttack.enabled = true;
+            Debug.Log("CharacterAttack script has been enabled on the player!");
+        }
+        else
+        {
+            Debug.LogWarning("CharacterAttack script not found on the player!");
         }
 
         PlayActivationSound();
