@@ -68,7 +68,7 @@ public class AbilityUnlocker : MonoBehaviour
         {
             // 执行相反的动作，然后设置为目标状态
             targetObject.SetActive(actionOnUnlock == UnlockAction.Deactivate);
-            
+
             switch (actionOnUnlock)
             {
                 case UnlockAction.Activate:
@@ -113,7 +113,7 @@ public class AbilityUnlocker : MonoBehaviour
     {
         targetObject = obj;
         actionOnUnlock = action;
-        
+
         // 设置初始状态
         if (targetObject != null)
         {

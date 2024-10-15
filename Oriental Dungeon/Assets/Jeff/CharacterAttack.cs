@@ -22,6 +22,13 @@ public class CharacterAttack : MonoBehaviour
     public AudioClip normalAttackSound;
     public AudioClip heavyAttackSound;
 
+    [Header("AttackSense Settings")]
+    public float shakeTime = 0.1f;
+    public int normalAttackHitPauseDuration = 3;
+    public float normalAttackCameraShakeStrength = 0.05f;
+    public int heavyAttackHitPauseDuration = 6;
+    public float heavyAttackCameraShakeStrength = 0.1f;
+
     private float nextAttackTime = 0f;
     public float mouseHoldStartTime;
     private bool isChargingHeavyAttack = false;
@@ -140,6 +147,16 @@ public class CharacterAttack : MonoBehaviour
                 {
                     Vector2 knockbackDirection = (other.transform.position - transform.position).normalized;
                     enemyController.Knockback(knockbackDirection * knockbackForce);
+
+                    // Trigger AttackSense effects for heavy attack
+                    AttackSense.Instance.HitPause(heavyAttackHitPauseDuration);
+                    AttackSense.Instance.CameraShake(shakeTime, heavyAttackCameraShakeStrength);
+                }
+                else
+                {
+                    // Trigger AttackSense effects for normal attack
+                    AttackSense.Instance.HitPause(normalAttackHitPauseDuration);
+                    AttackSense.Instance.CameraShake(shakeTime, normalAttackCameraShakeStrength);
                 }
 
                 hitEnemies.Add(other); // Add the enemy to the list of hit enemies
