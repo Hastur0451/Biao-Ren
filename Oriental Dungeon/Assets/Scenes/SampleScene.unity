@@ -408,6 +408,7 @@ MonoBehaviour:
   playerTag: Player
   targetObject: {fileID: 1960569366}
   actionOnUnlock: 0
+  enableCharacterAttack: 1
   destroySelfOnUnlock: 1
   enableBobbing: 1
   bobSpeed: 1
@@ -4060,6 +4061,11 @@ MonoBehaviour:
   knockbackForce: 10
   normalAttackSound: {fileID: 8300000, guid: 31f638bc81ebd8d43be9a2dc53825c4f, type: 3}
   heavyAttackSound: {fileID: 8300000, guid: 121c47562c012bb4fa223d70ab9d5534, type: 3}
+  shakeTime: 0.1
+  normalAttackHitPauseDuration: 3
+  normalAttackCameraShakeStrength: 0.05
+  heavyAttackHitPauseDuration: 6
+  heavyAttackCameraShakeStrength: 0.1
   mouseHoldStartTime: 0
 --- !u!114 &1023759192
 MonoBehaviour:
@@ -12401,7 +12407,7 @@ GameObject:
   - component: {fileID: 1163206094}
   - component: {fileID: 1163206093}
   m_Layer: 0
-  m_Name: Square
+  m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13519,6 +13525,7 @@ MonoBehaviour:
   playerTag: Player
   targetObject: {fileID: 1313802246}
   actionOnUnlock: 0
+  enableCharacterAttack: 1
   destroySelfOnUnlock: 1
   enableBobbing: 0
   bobSpeed: 1
@@ -13606,6 +13613,7 @@ MonoBehaviour:
   playerTag: Player
   targetObject: {fileID: 307081310}
   actionOnUnlock: 1
+  enableCharacterAttack: 1
   destroySelfOnUnlock: 1
   enableBobbing: 0
   bobSpeed: 1
@@ -13626,6 +13634,7 @@ MonoBehaviour:
   playerTag: Player
   targetObject: {fileID: 698750838}
   actionOnUnlock: 0
+  enableCharacterAttack: 1
   destroySelfOnUnlock: 1
   enableBobbing: 1
   bobSpeed: 1
@@ -14518,6 +14527,7 @@ MonoBehaviour:
   playerTag: Player
   targetObject: {fileID: 237532401}
   actionOnUnlock: 1
+  enableCharacterAttack: 1
   destroySelfOnUnlock: 0
   enableBobbing: 0
   bobSpeed: 1
@@ -14538,6 +14548,7 @@ MonoBehaviour:
   playerTag: Player
   targetObject: {fileID: 1309120861}
   actionOnUnlock: 1
+  enableCharacterAttack: 1
   destroySelfOnUnlock: 0
   enableBobbing: 0
   bobSpeed: 1
@@ -15777,8 +15788,8 @@ Transform:
   m_GameObject: {fileID: 2063804115}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.9, y: -40.85, z: 0}
-  m_LocalScale: {x: 6.537012, y: 6.537012, z: 6.537012}
+  m_LocalPosition: {x: 3.8, y: -40.85, z: 0}
+  m_LocalScale: {x: 5.901418, y: 5.901418, z: 5.901418}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1163206094}
@@ -15824,7 +15835,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -1
-  m_Sprite: {fileID: 21300000, guid: 89c979e8ffe6ec44689bb78002a0cef8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 232f785908ca28d469d151c418f3ebc7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
