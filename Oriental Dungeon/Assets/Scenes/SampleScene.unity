@@ -14481,7 +14481,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6e3e0568a09df7409a1b2b150e58198, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthManager: {fileID: 1023759186}
+  healthManager: {fileID: 3208311634579845638}
   healthIconPrefab: {fileID: 2026847790663761491, guid: 2bb484d9bc02f274c84e2b54c46b3716, type: 3}
   iconsParent: {fileID: 54651528}
   iconSpacing: 58.81
@@ -16438,7 +16438,7 @@ MonoBehaviour:
   trapLayer:
     serializedVersion: 2
     m_Bits: 256
-  trapTrigger: {fileID: 0}
+  trapTrigger: {fileID: 97020639}
   invincibilityDuration: 2
   blinkInterval: 0.1
 --- !u!1 &186087260287569758
@@ -17898,7 +17898,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 5
-  currentHealth: 0
+  currentHealth: 5
   destroyOnDeath: 0
   respawnOnDeath: 1
   respawnDelay: 2
