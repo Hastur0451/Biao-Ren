@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 46dae54cb61aa4445961876f44866e5d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - playerAttackClip: {instanceID: 0}
+  - playerHitClip: {instanceID: 0}
+  - enemyAttackClip: {instanceID: 0}
+  - enemyHitClip: {instanceID: 0}
+  - backgroundMusic: {fileID: 8300000, guid: 5eba3ecfd3e76df439ec2d0ed6e7c342, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
