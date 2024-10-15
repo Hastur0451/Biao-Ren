@@ -17,6 +17,7 @@ public class HealthManager : MonoBehaviour
     private Vector3 initialPosition;
     private CharacterController2D characterController;
     private Rigidbody2D rb;
+    private Collider2D col;
     private AnimationController animationController;
 
     private void Start()
@@ -26,6 +27,7 @@ public class HealthManager : MonoBehaviour
 
         characterController = GetComponent<CharacterController2D>();
         rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<Collider2D>();
         animationController = GetComponent<AnimationController>();
     }
 
@@ -56,11 +58,21 @@ public class HealthManager : MonoBehaviour
     {
         OnDeath?.Invoke();
 
-        // 禁用角色控制器和刚体
+        // Disable character controller
         if (characterController != null)
             characterController.SetMovementEnabled(false);
+
+        // Completely stop the Rigidbody2D
         if (rb != null)
+        {
             rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.simulated = false;  // This disables physics simulation
+        }
+
+        // Disable the collider to prevent further collisions
+        if (col != null)
+            col.enabled = false;
 
         if (animationController != null)
             animationController.TriggerDeathAnimation();
@@ -71,7 +83,7 @@ public class HealthManager : MonoBehaviour
         }
         else if (destroyOnDeath)
         {
-            Destroy(gameObject, respawnDelay); // 延迟销毁，给动画播放的时间
+            Destroy(gameObject, respawnDelay);
         }
     }
 
@@ -83,11 +95,9 @@ public class HealthManager : MonoBehaviour
 
     private void Respawn()
     {
-        // 重置血量
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
-        // 重置位置
         Vector3 respawnPosition;
         if (RespawnSystem.Instance != null)
         {
@@ -106,15 +116,17 @@ public class HealthManager : MonoBehaviour
         respawnPosition.z = 0f;
         transform.position = respawnPosition;
 
-        // 重新启用角色控制器
+        // Re-enable components
         if (characterController != null)
             characterController.SetMovementEnabled(true);
+        if (rb != null)
+            rb.simulated = true;
+        if (col != null)
+            col.enabled = true;
 
-        // 触发重生动画
         if (animationController != null)
             animationController.TriggerRespawnAnimation();
 
-        // 触发重生事件
         OnRespawn?.Invoke();
 
         Debug.Log("Player respawned at: " + transform.position);
