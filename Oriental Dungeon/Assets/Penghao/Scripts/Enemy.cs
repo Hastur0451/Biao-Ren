@@ -13,12 +13,15 @@ public class EnemyController : MonoBehaviour
     [SerializeField] public int currentHealth;
     [SerializeField] private float hitFlashDuration = 0.1f;
     [SerializeField] private Color hitColor = Color.red;
-    private HealthManager healthManager;
 
     [Header("Attack")]
     [SerializeField] private float attackRange = 1f;
     [SerializeField] private int attackDamage = 10;
     [SerializeField] private float attackCooldown = 1f;
+
+    [Header("Sound")]
+    [SerializeField] private AudioClip hurtSound; // 受击音效
+    private AudioSource audioSource; // 音频播放器
 
     private Transform player;
     private bool isPlayerInRange = false;
@@ -36,20 +39,16 @@ public class EnemyController : MonoBehaviour
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
-        healthManager = GetComponent<HealthManager>();
 
         if (spriteRenderer != null) originalColor = spriteRenderer.color;
+        currentHealth = maxHealth;
         lastAttackTime = -attackCooldown;
 
-        // Subscribe to health change events
-        if (healthManager != null)
+        // 初始化音频播放器
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
         {
-            healthManager.OnHealthChanged.AddListener(OnHealthChanged);
-            healthManager.OnDeath.AddListener(OnEnemyDeath);
-        }
-        else
-        {
-            Debug.LogError("HealthManager component not found on the enemy!");
+            audioSource = gameObject.AddComponent<AudioSource>();
         }
     }
 
@@ -85,17 +84,6 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    private void OnHealthChanged(int currentHealth, int maxHealth)
-    {
-        // Handle health changes here if needed
-        Debug.Log($"Enemy health changed: {currentHealth}/{maxHealth}");
-    }
-
-    private void OnEnemyDeath()
-    {
-        // Handle enemy death here
-        Die();
-    }
     private void ChasePlayer()
     {
         Vector2 direction = (player.position - transform.position).normalized;
@@ -127,37 +115,36 @@ public class EnemyController : MonoBehaviour
         if (Time.time >= lastAttackTime + attackCooldown)
         {
             lastAttackTime = Time.time;
-            animator?.SetTrigger("Attack");
+            //animator?.SetTrigger("Attack");
 
-            // Check if player is still in range before applying damage
-            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-            if (distanceToPlayer <= attackRange)
+            // Apply damage to player
+            HealthManager playerHealth = player.GetComponent<HealthManager>();
+            if (playerHealth != null)
             {
-                // Apply damage to player
-                HealthManager playerHealth = player.GetComponent<HealthManager>();
-                if (playerHealth != null)
-                {
-                    playerHealth.TakeDamage(attackDamage);
-                    Debug.Log($"Enemy attacked player for {attackDamage} damage. Player health: {playerHealth.GetCurrentHealth()}/{playerHealth.GetMaxHealth()}");
-                }
-                else
-                {
-                    Debug.LogWarning("Player does not have a HealthManager component");
-                }
+                playerHealth.TakeDamage(attackDamage);
             }
         }
     }
 
     public void TakeDamage(int damage)
     {
-        if (healthManager != null)
+        currentHealth -= damage;
+        PlayHurtSound(); // 播放受击音效
+        StartCoroutine(HitFlash());
+        //animator?.SetTrigger("Hurt");
+
+        if (currentHealth <= 0)
         {
-            healthManager.TakeDamage(damage);
-            StartCoroutine(HitFlash());
-            animator?.SetTrigger("Hurt");
+            Die();
         }
     }
-
+    private void PlayHurtSound()
+    {
+        if (hurtSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(hurtSound);
+        }
+    }
     private IEnumerator HitFlash()
     {
         if (spriteRenderer != null)
@@ -170,7 +157,7 @@ public class EnemyController : MonoBehaviour
 
     private void Die()
     {
-        animator?.SetTrigger("Die");
+        //animator?.SetTrigger("Die");
         this.enabled = false;
         GetComponent<Collider2D>().enabled = false;
         rb.velocity = Vector2.zero;
@@ -195,15 +182,5 @@ public class EnemyController : MonoBehaviour
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
-    }
-
-    private void OnDestroy()
-    {
-        // Unsubscribe from events to prevent memory leaks
-        if (healthManager != null)
-        {
-            healthManager.OnHealthChanged.RemoveListener(OnHealthChanged);
-            healthManager.OnDeath.RemoveListener(OnEnemyDeath);
-        }
     }
 }
