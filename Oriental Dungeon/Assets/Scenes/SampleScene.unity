@@ -25032,11 +25032,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4661744269610380542, guid: ce935005a3a4ae549bd169c4fd4fa4f5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -18.46
+      value: -19.33
       objectReference: {fileID: 0}
     - target: {fileID: 4661744269610380542, guid: ce935005a3a4ae549bd169c4fd4fa4f5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 23.94
+      value: 23.19
       objectReference: {fileID: 0}
     - target: {fileID: 4661744269610380542, guid: ce935005a3a4ae549bd169c4fd4fa4f5, type: 3}
       propertyPath: m_LocalPosition.z
@@ -26591,6 +26591,11 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!1 &1617361115 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8999233292122754405, guid: ce935005a3a4ae549bd169c4fd4fa4f5, type: 3}
+  m_PrefabInstance: {fileID: 1916054926}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1620699351
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28528,8 +28533,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTag: Player
-  targetObject: {fileID: 1309120861}
-  actionOnUnlock: 1
+  targetObject: {fileID: 476108514}
+  actionOnUnlock: 0
   enableCharacterAttack: 1
   destroySelfOnUnlock: 0
   enableBobbing: 0
@@ -28777,6 +28782,7 @@ GameObject:
   - component: {fileID: 2092166284}
   - component: {fileID: 2092166283}
   - component: {fileID: 2092166287}
+  - component: {fileID: 2092166288}
   m_Layer: 0
   m_Name: Bell
   m_TagString: Untagged
@@ -28911,7 +28917,7 @@ Transform:
   m_GameObject: {fileID: 2092166282}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 33.8, y: 83.2, z: 0}
+  m_LocalPosition: {x: 35.48, y: 80.94, z: 0}
   m_LocalScale: {x: 0.8751424, y: 0.8751424, z: 0.8751429}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -28930,7 +28936,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTag: Player
-  targetObject: {fileID: 0}
+  targetObject: {fileID: 546023015}
+  actionOnUnlock: 0
+  enableCharacterAttack: 1
+  destroySelfOnUnlock: 1
+  enableBobbing: 1
+  bobSpeed: 1
+  bobHeight: 0.5
+  unlockSound: {fileID: 0}
+--- !u!114 &2092166288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092166282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28994ff3d4a6a8b438f386cf0748c3a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerTag: Player
+  targetObject: {fileID: 1617361115}
   actionOnUnlock: 0
   enableCharacterAttack: 1
   destroySelfOnUnlock: 1
@@ -32382,7 +32409,7 @@ Transform:
   m_GameObject: {fileID: 7418059699096040261}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 21.8, y: 3.8, z: 0}
+  m_LocalPosition: {x: 20.39, y: 4.32, z: 0}
   m_LocalScale: {x: 0.93, y: 1.696389, z: 0.7861134}
   m_ConstrainProportionsScale: 1
   m_Children:
