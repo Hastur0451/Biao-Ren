@@ -2583,9 +2583,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 4.5
+  moveDistance: 4
+  moveVertically: 1
+  reverseInitialDirection: 0
   waitTime: 1
-  totalTime: 2
-  movePositions: []
+  totalTime: 0
 --- !u!1 &434539472
 GameObject:
   m_ObjectHideFlags: 0
@@ -3187,9 +3189,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
+  moveDistance: 4
+  moveVertically: 1
+  reverseInitialDirection: 0
   waitTime: 1
-  totalTime: 2
-  movePositions: []
+  totalTime: 0
 --- !u!1 &547819533
 GameObject:
   m_ObjectHideFlags: 0
@@ -3732,9 +3736,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
+  moveDistance: 4
+  moveVertically: 1
+  reverseInitialDirection: 0
   waitTime: 1
-  totalTime: 2
-  movePositions: []
+  totalTime: 0
 --- !u!1 &681142421
 GameObject:
   m_ObjectHideFlags: 0
@@ -5078,10 +5084,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 4
-  waitTime: 1
-  totalTime: 2
-  movePositions:
-  - {fileID: 0}
+  moveDistance: 4
+  moveVertically: 1
+  reverseInitialDirection: 0
+  waitTime: 0
+  totalTime: 0
 --- !u!1 &982864393
 GameObject:
   m_ObjectHideFlags: 0

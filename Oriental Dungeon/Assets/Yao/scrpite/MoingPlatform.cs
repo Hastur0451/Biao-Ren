@@ -1,78 +1,114 @@
 using UnityEngine;
 
-public class MovingPlatform : MonoBehaviour
+public class MovingPlatform2D : MonoBehaviour
 {
     public float moveSpeed = 2f;
+    public float moveDistance = 4f;
+    public bool moveVertically = true;
+    public bool reverseInitialDirection = false;
     public float waitTime = 1f;
-    public float totalTime = 2f;
-    public Transform[] movePositions;
+    public float totalTime;
 
-    private int currentPosIndex = 0;
-    private float waitTimer;
+    private Vector3 startPosition;
+    private Vector3 endPosition;
+    private bool movingToEnd = true;
+    private float currentWaitTime;
+    private Transform playerTransform;
 
     private void Start()
     {
-        if (movePositions.Length == 0)
+        CalculatePositions();
+        playerTransform = GameObject.FindGameObjectWithTag("Player").transform.parent;
+        currentWaitTime = waitTime;
+    }
+
+    private void CalculatePositions()
+    {
+        startPosition = transform.position;
+
+        if (moveVertically)
         {
-            Debug.LogError("No move positions set for the platform.");
-            enabled = false;
-            return;
+            endPosition = startPosition + (reverseInitialDirection ? Vector3.down : Vector3.up) * moveDistance;
+        }
+        else
+        {
+            endPosition = startPosition + (reverseInitialDirection ? Vector3.right : Vector3.left) * moveDistance;
         }
 
-        transform.position = movePositions[0].position;
-        waitTimer = waitTime;
+        if (reverseInitialDirection)
+        {
+            SwapPositions();
+        }
     }
 
     private void Update()
     {
-        MovePlatform();
+        Move();
     }
 
-    private void MovePlatform()
+    private void Move()
     {
-        if (waitTimer > 0)
+        if (currentWaitTime > 0)
         {
-            waitTimer -= Time.deltaTime;
+            currentWaitTime -= Time.deltaTime;
             return;
         }
 
-        Transform targetPosition = movePositions[currentPosIndex];
-        transform.position = Vector2.MoveTowards(transform.position, targetPosition.position, moveSpeed * Time.deltaTime);
+        Vector3 targetPosition = movingToEnd ? endPosition : startPosition;
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
-        if (Vector2.Distance(transform.position, targetPosition.position) < 0.01f)
+        if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
         {
-            currentPosIndex = (currentPosIndex + 1) % movePositions.Length;
-            waitTimer = waitTime;
+            movingToEnd = !movingToEnd;
+            currentWaitTime = waitTime;
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void SwapPositions()
     {
-        if (collision.gameObject.CompareTag("Player") && collision.gameObject.GetComponent<Rigidbody2D>() != null)
-        {
-            collision.gameObject.transform.SetParent(transform);
-        }
+        Vector3 temp = startPosition;
+        startPosition = endPosition;
+        endPosition = temp;
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (collision.gameObject.CompareTag("Player") && collision.gameObject.GetComponent<Rigidbody2D>() != null)
+        if (other.CompareTag("Player") && other.GetType().ToString() == "UnityEngine.CapsuleCollider2D")
         {
-            collision.gameObject.transform.SetParent(null);
+            other.transform.SetParent(transform);
         }
     }
 
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player") && other.GetType().ToString() == "UnityEngine.CapsuleCollider2D")
+        {
+            other.transform.SetParent(playerTransform);
+        }
+    }
+
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        if (movePositions == null || movePositions.Length == 0) return;
+        if (!Application.isPlaying)
+        {
+            CalculatePositions();
+        }
 
         Gizmos.color = Color.yellow;
-        for (int i = 0; i < movePositions.Length; i++)
-        {
-            Vector3 currentPos = movePositions[i].position;
-            Vector3 nextPos = movePositions[(i + 1) % movePositions.Length].position;
-            Gizmos.DrawLine(currentPos, nextPos);
-            Gizmos.DrawSphere(currentPos, 0.1f);
-        }
+        Gizmos.DrawLine(startPosition, endPosition);
+
+        // Draw spheres at the start and end positions
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(startPosition, 0.1f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(endPosition, 0.1f);
+
+        // Draw arrow to indicate initial movement direction
+        Vector3 direction = (endPosition - startPosition).normalized;
+        Vector3 arrowPos = startPosition + direction * (moveDistance / 2);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(arrowPos, direction * 0.5f);
     }
+#endif
 }
