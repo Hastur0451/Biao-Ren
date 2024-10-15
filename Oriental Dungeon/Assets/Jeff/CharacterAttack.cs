@@ -9,6 +9,7 @@ public class CharacterAttack : MonoBehaviour
     public int attackDamage = 20;
     public float attackCooldown = 0.5f;
     public float normalAttackDuration = 0.2f;
+    public float normalAttackDelay = 0.2f; // New field for normal attack delay
 
     [Header("Heavy Attack Settings")]
     public int heavyAttackDamage = 40;
@@ -93,7 +94,7 @@ public class CharacterAttack : MonoBehaviour
                     }
                     else
                     {
-                        NormalAttack();
+                        StartCoroutine(DelayedNormalAttack());
                     }
                     IsChargingHeavyAttack = false;
                 }
@@ -101,9 +102,15 @@ public class CharacterAttack : MonoBehaviour
         }
     }
 
-    void NormalAttack()
+    private IEnumerator DelayedNormalAttack()
     {
-        animator.SetTrigger("Attack");
+        animator?.SetTrigger("Attack");
+        yield return new WaitForSeconds(normalAttackDelay);
+        ExecuteNormalAttack();
+    }
+
+    private void ExecuteNormalAttack()
+    {
         PlaySound(normalAttackSound);
         StartCoroutine(PerformAttack(normalAttackDuration, false));
         nextAttackTime = Time.time + attackCooldown;
