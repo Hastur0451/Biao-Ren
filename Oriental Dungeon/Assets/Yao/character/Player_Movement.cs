@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Linq;
 
 public class CharacterController2D : MonoBehaviour
 {
@@ -10,12 +9,13 @@ public class CharacterController2D : MonoBehaviour
     [Header("跳跃设置")]
     public float maxJumpHeight = 4f;
     public float timeToJumpApex = 0.4f;
-    public float jumpCooldown = 0.2f;
+    public float jumpCooldown = 0.1f;
 
     [Header("地面检测")]
-    public Vector2 groundCheckSize = new Vector2(0.9f, 0.2f);
-    public Vector2 groundCheckOffset = new Vector2(0, -0.5f);
-    public LayerMask[] jumpableLayers; // 改为Layer数组
+    public Transform groundCheck;
+    public LayerMask groundLayer;
+    public float groundedRememberTime = 0.1f;
+    public float groundCheckRadius = 0.1f;
 
     [Header("引用")]
     public Rigidbody2D rb;
@@ -24,6 +24,7 @@ public class CharacterController2D : MonoBehaviour
     public bool showDebugGizmos = true;
 
     private bool isGrounded;
+    private float groundedRemember;
     private bool canJump = true;
     private float jumpVelocity;
     private float gravity;
@@ -40,6 +41,9 @@ public class CharacterController2D : MonoBehaviour
             rb = GetComponent<Rigidbody2D>();
 
         CalculateJumpParameters();
+
+        if (groundCheck == null)
+            Debug.LogError("Ground Check transform is not assigned!");
     }
 
     private void CalculateJumpParameters()
@@ -51,7 +55,7 @@ public class CharacterController2D : MonoBehaviour
 
     private void Update()
     {
-        CheckGrounded();
+        UpdateGroundedState();
 
         if (movementEnabled)
         {
@@ -63,7 +67,28 @@ public class CharacterController2D : MonoBehaviour
             rb.velocity = new Vector2(0, rb.velocity.y);
         }
 
-        Debug.Log($"Position: {transform.position}, IsGrounded: {isGrounded}, CanJump: {canJump}, IsJumping: {isJumping}");
+        // 调试输出
+        Debug.Log($"IsGrounded: {isGrounded}, CanJump: {canJump}, IsJumping: {isJumping}");
+    }
+
+    private void UpdateGroundedState()
+    {
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+        if (isGrounded)
+        {
+            groundedRemember = groundedRememberTime;
+        }
+        else
+        {
+            groundedRemember -= Time.deltaTime;
+        }
+
+        // 在地面上时重置跳跃状态
+        if (isGrounded && !isJumping)
+        {
+            canJump = true;
+        }
     }
 
     private void FixedUpdate()
@@ -71,76 +96,15 @@ public class CharacterController2D : MonoBehaviour
         ApplyMovement();
     }
 
-    private void CheckGrounded()
-    {
-        isGrounded = IsGroundedCheck();
-
-        if (isGrounded)
-        {
-            isJumping = false;
-            if (Time.time - lastJumpTime >= jumpCooldown)
-            {
-                canJump = true;
-            }
-        }
-        
-        Debug.Log($"Ground Check Result: {isGrounded}");
-    }
-
-    private bool IsGroundedCheck()
-    {
-        Vector2 boxCenter = (Vector2)transform.position + groundCheckOffset;
-        Collider2D[] hits = Physics2D.OverlapBoxAll(boxCenter, groundCheckSize, 0f);
-
-        Debug.Log($"OverlapBoxAll found {hits.Length} colliders");
-
-        foreach (Collider2D hit in hits)
-        {
-            int hitLayer = hit.gameObject.layer;
-            Debug.Log($"Checking collider: {hit.name} on layer {LayerMask.LayerToName(hitLayer)}");
-            
-            if (IsLayerInJumpableLayers(hitLayer))
-            {
-                Debug.Log($"Ground detected: {hit.name} on layer {LayerMask.LayerToName(hitLayer)}");
-                return true;
-            }
-        }
-
-        Debug.Log("No ground detected. Jumpable layers: " + GetJumpableLayersString());
-        return false;
-    }
-
-        private bool IsLayerInJumpableLayers(int layer)
-    {
-        return jumpableLayers.Any(layerMask => ((1 << layer) & layerMask.value) != 0);
-    }
-
-    private string GetJumpableLayersString()
-    {
-        return string.Join(", ", jumpableLayers
-            .Select(layerMask => GetLayerMaskName(layerMask))
-            .Where(name => !string.IsNullOrEmpty(name)));
-    }
-
-    private string GetLayerMaskName(LayerMask layerMask)
-    {
-        int layerNumber = (int)Mathf.Log(layerMask.value, 2);
-        if (layerNumber >= 0 && layerNumber < 32)
-        {
-            return LayerMask.LayerToName(layerNumber);
-        }
-        return "Invalid Layer";
-    }
-
     private void HandleMovementInput()
     {
         moveHorizontal = Input.GetAxisRaw("Horizontal");
 
-        if (moveHorizontal < 0 && !isFacingRight)
+        if (moveHorizontal > 0 && isFacingRight)
         {
             Flip();
         }
-        else if (moveHorizontal > 0 && isFacingRight)
+        else if (moveHorizontal < 0 && !isFacingRight)
         {
             Flip();
         }
@@ -154,25 +118,21 @@ public class CharacterController2D : MonoBehaviour
 
     private void HandleJumpInput()
     {
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && canJump && isGrounded)
         {
-            Debug.Log("Jump button pressed");
-            if (isGrounded && canJump)
-            {
-                StartJump();
-            }
-            else
-            {
-                Debug.Log($"Jump failed. IsGrounded: {isGrounded}, CanJump: {canJump}");
-            }
+            StartJump();
         }
 
-        if (isJumping)
+        // 检查是否应该结束跳跃
+        if (isJumping && (transform.position.y - jumpStartY >= maxJumpHeight || rb.velocity.y <= 0))
         {
-            if (transform.position.y - jumpStartY >= maxJumpHeight || rb.velocity.y <= 0)
-            {
-                StopJump();
-            }
+            StopJump();
+        }
+
+        // 跳跃冷却检查
+        if (!canJump && Time.time - lastJumpTime >= jumpCooldown)
+        {
+            canJump = true;
         }
     }
 
@@ -183,13 +143,16 @@ public class CharacterController2D : MonoBehaviour
         lastJumpTime = Time.time;
         jumpStartY = transform.position.y;
         rb.velocity = new Vector2(rb.velocity.x, jumpVelocity);
-        Debug.Log("Jump started!");
+        groundedRemember = 0;
     }
 
     private void StopJump()
     {
         isJumping = false;
-        rb.velocity = new Vector2(rb.velocity.x, Mathf.Min(rb.velocity.y, 0));
+        if (rb.velocity.y > 0)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
+        }
     }
 
     private void Flip()
@@ -202,18 +165,10 @@ public class CharacterController2D : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (!showDebugGizmos) return;
+        if (!showDebugGizmos || groundCheck == null) return;
 
         Gizmos.color = isGrounded ? Color.green : Color.red;
-        Vector2 boxCenter = (Vector2)transform.position + groundCheckOffset;
-        Gizmos.DrawWireCube(boxCenter, groundCheckSize);
-
-        // 绘制角色边界框
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireCube(transform.position, GetComponent<Collider2D>().bounds.size);
-
-        // 显示检测框的具体位置和大小
-        Debug.Log($"Ground check box: Center = {boxCenter}, Size = {groundCheckSize}");
+        Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
     }
 
     public void SetMovementEnabled(bool enabled)
