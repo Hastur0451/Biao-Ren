@@ -182,6 +182,7 @@ GameObject:
   - component: {fileID: 5841752708678343583}
   - component: {fileID: 2709118459912200644}
   - component: {fileID: 58469677622178937}
+  - component: {fileID: 1534250296654957428}
   m_Layer: 0
   m_Name: respawn
   m_TagString: SavePoint
@@ -302,3 +303,18 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 2.5, y: 2.04}
   m_EdgeRadius: 0
+--- !u!114 &1534250296654957428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6627189384789552369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4706ffc7230af54c9b9e514ec88b8f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  savePointText: {fileID: 6438106066788290782}
+  savePointMessage: Press E to save checkpoint
+  checkRadius: 2

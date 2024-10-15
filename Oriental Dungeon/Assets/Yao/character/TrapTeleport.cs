@@ -1,59 +1,111 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
-public class TrapAndCheckpointSystem : MonoBehaviour
+public class TrapAndInvincibilitySystem : MonoBehaviour
 {
     public LayerMask groundLayer;  // 地面层
     public LayerMask trapLayer;    // 陷阱层
-    public float checkGroundRadius = 0.1f;  // 检查地面的半径
-    public Vector2 groundCheckOffset = new Vector2(0, -0.5f);  // 地面检查的偏移量
+    public GameObject trapTrigger; // 用于检测陷阱的触发器对象
+    public float invincibilityDuration = 2f; // 无敌时间持续时间
+    public float blinkInterval = 0.1f; // 闪烁间隔
 
     private Vector3 lastSafePosition;  // 最后的安全位置
-    private bool isOnGround;  // 玩家是否在地面上
+    private bool isInvincible = false; // 是否处于无敌状态
+    private List<Renderer> characterRenderers = new List<Renderer>(); // 角色的所有渲染器组件
 
-    private void Update()
+    private void Start()
     {
-        CheckGround();
-        CheckTrap();
+        if (trapTrigger == null)
+        {
+            Debug.LogError("Trap trigger GameObject is not assigned!");
+        }
+        lastSafePosition = transform.position; // 初始化最后的安全位置
+
+        // 获取角色所有的渲染器组件
+        GetAllRenderers(transform);
+
+        if (characterRenderers.Count == 0)
+        {
+            Debug.LogError("No Renderer components found in the character or its children!");
+        }
     }
 
-    private void CheckGround()
+    private void GetAllRenderers(Transform parent)
     {
-        Vector2 checkPosition = (Vector2)transform.position + groundCheckOffset;
-        isOnGround = Physics2D.OverlapCircle(checkPosition, checkGroundRadius, groundLayer);
+        Renderer renderer = parent.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            characterRenderers.Add(renderer);
+        }
 
-        if (isOnGround)
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            GetAllRenderers(parent.GetChild(i));
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (((1 << other.gameObject.layer) & groundLayer) != 0)
         {
             // 更新最后的安全位置
             lastSafePosition = transform.position;
         }
-    }
-
-    private void CheckTrap()
-    {
-        Vector2 checkPosition = (Vector2)transform.position + groundCheckOffset;
-        bool isTouchingTrap = Physics2D.OverlapCircle(checkPosition, checkGroundRadius, trapLayer);
-
-        if (isTouchingTrap)
+        else if (!isInvincible && ((1 << other.gameObject.layer) & trapLayer) != 0)
         {
-            TeleportToSafePosition();
+            StartCoroutine(TriggerInvincibility());
         }
     }
 
-    private void TeleportToSafePosition()
+    private IEnumerator TriggerInvincibility()
     {
-        // 传送到最后的安全位置
-        transform.position = lastSafePosition;
-        Debug.Log("Player teleported to safe position: " + lastSafePosition);
+        isInvincible = true;
+        Debug.Log("触发陷阱！进入无敌状态");
 
-        // 这里可以添加额外的效果，比如播放音效、粒子效果等
-        // 例如：AudioSource.PlayOneShot(teleportSound);
+        // 传送到最后的安全位置
+        //transform.position = lastSafePosition;
+        //Debug.Log("Player teleported to safe position: " + lastSafePosition);
+
+        // 开始闪烁效果
+        StartCoroutine(BlinkEffect());
+
+        // 等待无敌时间结束
+        yield return new WaitForSeconds(invincibilityDuration);
+
+        isInvincible = false;
+        Debug.Log("无敌状态结束");
+
+        // 确保所有渲染器在无敌状态结束后可见
+        SetRenderersEnabled(true);
     }
 
-    // 在 Unity 编辑器中可视化地面和陷阱检测范围
+    private IEnumerator BlinkEffect()
+    {
+        float endTime = Time.time + invincibilityDuration;
+        while (Time.time < endTime)
+        {
+            SetRenderersEnabled(!characterRenderers[0].enabled);
+            yield return new WaitForSeconds(blinkInterval);
+        }
+        SetRenderersEnabled(true);
+    }
+
+    private void SetRenderersEnabled(bool enabled)
+    {
+        foreach (var renderer in characterRenderers)
+        {
+            renderer.enabled = enabled;
+        }
+    }
+
+    // 在 Unity 编辑器中可视化陷阱检测范围
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
-        Vector2 checkPosition = (Vector2)transform.position + groundCheckOffset;
-        Gizmos.DrawWireSphere(checkPosition, checkGroundRadius);
+        if (trapTrigger != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(trapTrigger.transform.position, trapTrigger.GetComponent<Collider2D>().bounds.size);
+        }
     }
 }
