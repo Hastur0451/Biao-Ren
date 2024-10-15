@@ -17590,6 +17590,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7652375419526504674, guid: bcac139ae9771a24ba2be6e65650dd0a, type: 3}
+      propertyPath: m_Constraints
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8219615632301561377, guid: bcac139ae9771a24ba2be6e65650dd0a, type: 3}
       propertyPath: m_Name
       value: Qu (3)
