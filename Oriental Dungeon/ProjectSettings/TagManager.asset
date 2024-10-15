@@ -8,6 +8,7 @@ TagManager:
   - SavePoint
   - Wood
   - trap
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -18,8 +19,8 @@ TagManager:
   - Ground
   - Wood
   - Trap
-  - 
-  - 
+  - Player
+  - Enemy
   - 
   - 
   - 
@@ -44,4 +45,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: New Layer 1
+    uniqueID: 3703571163
     locked: 0

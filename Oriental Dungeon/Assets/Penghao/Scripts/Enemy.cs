@@ -19,6 +19,10 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int attackDamage = 10;
     [SerializeField] private float attackCooldown = 1f;
 
+    [Header("Sound")]
+    [SerializeField] private AudioClip hurtSound; // 受击音效
+    private AudioSource audioSource; // 音频播放器
+
     private Transform player;
     private bool isPlayerInRange = false;
     private Animator animator;
@@ -39,6 +43,13 @@ public class EnemyController : MonoBehaviour
         if (spriteRenderer != null) originalColor = spriteRenderer.color;
         currentHealth = maxHealth;
         lastAttackTime = -attackCooldown;
+
+        // 初始化音频播放器
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
     }
 
     private void Update()
@@ -118,6 +129,7 @@ public class EnemyController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+        PlayHurtSound(); // 播放受击音效
         StartCoroutine(HitFlash());
         //animator?.SetTrigger("Hurt");
 
@@ -126,7 +138,13 @@ public class EnemyController : MonoBehaviour
             Die();
         }
     }
-
+    private void PlayHurtSound()
+    {
+        if (hurtSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(hurtSound);
+        }
+    }
     private IEnumerator HitFlash()
     {
         if (spriteRenderer != null)
