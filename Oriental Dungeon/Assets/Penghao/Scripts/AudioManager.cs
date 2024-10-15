@@ -7,6 +7,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip playerHitClip; // 玩家受击音效
     public AudioClip enemyAttackClip; // 敌人攻击音效
     public AudioClip enemyHitClip; // 敌人受击音效
+    public AudioClip quHitClip;
     public AudioClip backgroundMusic; // 背景音乐
 
     // AudioSource组件
@@ -48,6 +49,10 @@ public class AudioManager : MonoBehaviour
         audioSource.PlayOneShot(enemyHitClip);
     }
 
+    public void PlayBugHitSound()
+    {
+        audioSource.PlayOneShot(quHitClip);
+    }
     // 播放背景音乐
     public void PlayBackgroundMusic(float volume = 1.0f) // 默认音量为1.0
     {
