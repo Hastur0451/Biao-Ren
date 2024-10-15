@@ -218,11 +218,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe6c435e3bf46c4498065706ec73fdf7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentMode: 0
   moveSpeed: 2
   patrolDistance: 5
-  crawlPathSize: {x: 1, y: 1}
-  crawlPathOffset: {x: 0, y: 0}
 --- !u!114 &3640555348633020897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,6 +234,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   detectionRange: 0
   movementSpeed: 2
+  knockbackRecoverySpeed: 5
   maxHealth: 40
+  currentHealth: 0
   hitFlashDuration: 0.1
   hitColor: {r: 1, g: 0, b: 0, a: 1}
+  attackRange: 1
+  attackDamage: 10
+  attackCooldown: 1
+  hurtSound: {fileID: 8300000, guid: e62f43f4d8b6beb4ba059671020b9cb9, type: 3}
