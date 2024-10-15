@@ -6,26 +6,31 @@ public class MovingPlatform2D : MonoBehaviour
     public float moveDistance = 4f;
     public bool moveVertically = true;
     public bool reverseInitialDirection = false;
-    public float waitTime = 1f;
-    public float totalTime;
+    public GameObject player;
 
     private Vector3 startPosition;
     private Vector3 endPosition;
     private bool movingToEnd = true;
-    private float currentWaitTime;
-    private Transform playerTransform;
+    private Transform playerOriginalParent;
+    private bool isPlayerOn = false;
+    private bool isPaused = false;
 
     private void Start()
     {
         CalculatePositions();
-        playerTransform = GameObject.FindGameObjectWithTag("Player").transform.parent;
-        currentWaitTime = waitTime;
+        if (player != null)
+        {
+            playerOriginalParent = player.transform.parent;
+        }
+        else
+        {
+            Debug.LogWarning("Player reference not set in inspector!");
+        }
     }
 
     private void CalculatePositions()
     {
         startPosition = transform.position;
-
         if (moveVertically)
         {
             endPosition = startPosition + (reverseInitialDirection ? Vector3.down : Vector3.up) * moveDistance;
@@ -34,60 +39,58 @@ public class MovingPlatform2D : MonoBehaviour
         {
             endPosition = startPosition + (reverseInitialDirection ? Vector3.right : Vector3.left) * moveDistance;
         }
-
-        if (reverseInitialDirection)
-        {
-            SwapPositions();
-        }
     }
 
     private void Update()
     {
-        Move();
+        if (!isPaused)
+        {
+            Move();
+        }
     }
 
     private void Move()
     {
-        if (currentWaitTime > 0)
-        {
-            currentWaitTime -= Time.deltaTime;
-            return;
-        }
-
         Vector3 targetPosition = movingToEnd ? endPosition : startPosition;
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
         if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
         {
             movingToEnd = !movingToEnd;
-            currentWaitTime = waitTime;
         }
     }
 
-    private void SwapPositions()
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        Vector3 temp = startPosition;
-        startPosition = endPosition;
-        endPosition = temp;
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Player") && other.GetType().ToString() == "UnityEngine.CapsuleCollider2D")
+        if (collision.gameObject == player && !isPlayerOn)
         {
-            other.transform.SetParent(transform);
+            SetPlayerParent(transform);
+            isPlayerOn = true;
         }
     }
 
-    private void OnTriggerExit2D(Collider2D other)
+    private void OnTriggerExit2D(Collider2D collision)
     {
-        if (other.CompareTag("Player") && other.GetType().ToString() == "UnityEngine.CapsuleCollider2D")
+        if (collision.gameObject == player && isPlayerOn)
         {
-            other.transform.SetParent(playerTransform);
+            SetPlayerParent(playerOriginalParent);
+            isPlayerOn = false;
         }
     }
 
-#if UNITY_EDITOR
+    private void SetPlayerParent(Transform newParent)
+    {
+        if (player != null && player.transform.parent != newParent)
+        {
+            player.transform.SetParent(newParent, true);
+        }
+    }
+
+    public void SetPauseState(bool pause)
+    {
+        isPaused = pause;
+    }
+
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying)
@@ -95,20 +98,20 @@ public class MovingPlatform2D : MonoBehaviour
             CalculatePositions();
         }
 
+        // 绘制移动路径
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(startPosition, endPosition);
 
-        // Draw spheres at the start and end positions
+        // 在起点和终点绘制球体
         Gizmos.color = Color.green;
         Gizmos.DrawSphere(startPosition, 0.1f);
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(endPosition, 0.1f);
 
-        // Draw arrow to indicate initial movement direction
+        // 绘制箭头指示初始移动方向
         Vector3 direction = (endPosition - startPosition).normalized;
         Vector3 arrowPos = startPosition + direction * (moveDistance / 2);
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(arrowPos, direction * 0.5f);
     }
-#endif
 }
