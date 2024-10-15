@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NewController : MonoBehaviour
+public class NewPlayerController : MonoBehaviour
 {
     [Header("补偿速度")]
     public float lightSpeed;
@@ -132,9 +132,9 @@ public class NewController : MonoBehaviour
             }
 
             if (transform.localScale.x > 0)
-                other.GetComponent<NewEnemy>().GetHit(Vector2.right);
+                other.GetComponent<Enemy>().GetHit(Vector2.right);
             else if (transform.localScale.x < 0)
-                other.GetComponent<NewEnemy>().GetHit(Vector2.left);
+                other.GetComponent<Enemy>().GetHit(Vector2.left);
         }
     }
 
