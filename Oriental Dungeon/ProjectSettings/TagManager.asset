@@ -21,7 +21,7 @@ TagManager:
   - Trap
   - Player
   - Enemy
-  - 
+  - Backgroud
   - 
   - 
   - 
@@ -46,6 +46,24 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: New Layer 1
-    uniqueID: 3703571163
+  - name: Map
+    uniqueID: 2413562885
+    locked: 0
+  - name: Enemy
+    uniqueID: 2467989389
+    locked: 0
+  - name: Player
+    uniqueID: 3366025367
+    locked: 0
+  - name: Trap
+    uniqueID: 324020647
+    locked: 0
+  - name: Wood
+    uniqueID: 3591845607
+    locked: 0
+  - name: Ground
+    uniqueID: 1949281415
+    locked: 0
+  - name: Background
+    uniqueID: 2680936107
     locked: 0
