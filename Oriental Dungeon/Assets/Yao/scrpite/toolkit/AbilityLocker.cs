@@ -8,6 +8,9 @@ public class AbilityUnlocker : MonoBehaviour
     public enum UnlockAction { Activate, Deactivate }
     public UnlockAction actionOnUnlock = UnlockAction.Activate; // 解锁时执行的动作
 
+    [Header("Player Ability Settings")]
+    public bool enableCharacterAttack = true; // 是否启用玩家的CharacterAttack脚本
+
     [Header("Behavior Settings")]
     public bool destroySelfOnUnlock = true; // 是否在解锁后销毁自身
     public bool enableBobbing = true; // 是否启用上下晃动
@@ -31,7 +34,6 @@ public class AbilityUnlocker : MonoBehaviour
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
-
         // 初始化目标对象的状态
         if (targetObject != null)
         {
@@ -58,17 +60,14 @@ public class AbilityUnlocker : MonoBehaviour
     {
         if (collision.CompareTag(playerTag))
         {
-            UnlockAbility();
+            UnlockAbility(collision.gameObject);
         }
     }
 
-    private void UnlockAbility()
+    private void UnlockAbility(GameObject player)
     {
         if (targetObject != null)
         {
-            // 执行相反的动作，然后设置为目标状态
-            targetObject.SetActive(actionOnUnlock == UnlockAction.Deactivate);
-
             switch (actionOnUnlock)
             {
                 case UnlockAction.Activate:
@@ -76,7 +75,7 @@ public class AbilityUnlocker : MonoBehaviour
                     Debug.Log($"GameObject '{targetObject.name}' has been activated!");
                     break;
                 case UnlockAction.Deactivate:
-                    Destroy(targetObject);
+                    targetObject.SetActive(false);
                     Debug.Log($"GameObject '{targetObject.name}' has been deactivated!");
                     break;
             }
@@ -84,6 +83,11 @@ public class AbilityUnlocker : MonoBehaviour
         else
         {
             Debug.LogWarning("No target GameObject assigned!");
+        }
+
+        if (enableCharacterAttack)
+        {
+            EnableCharacterAttack(player);
         }
 
         PlayUnlockSound();
@@ -100,6 +104,20 @@ public class AbilityUnlocker : MonoBehaviour
         }
     }
 
+    private void EnableCharacterAttack(GameObject player)
+    {
+        CharacterAttack characterAttack = player.GetComponent<CharacterAttack>();
+        if (characterAttack != null)
+        {
+            characterAttack.enabled = true;
+            Debug.Log("CharacterAttack script has been enabled on the player!");
+        }
+        else
+        {
+            Debug.LogWarning("CharacterAttack script not found on the player!");
+        }
+    }
+
     private void PlayUnlockSound()
     {
         if (unlockSound != null && audioSource != null)
@@ -113,7 +131,6 @@ public class AbilityUnlocker : MonoBehaviour
     {
         targetObject = obj;
         actionOnUnlock = action;
-
         // 设置初始状态
         if (targetObject != null)
         {
