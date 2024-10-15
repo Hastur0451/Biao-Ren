@@ -23,6 +23,7 @@ public class EnemyController : MonoBehaviour
     private Transform player;
     private bool isPlayerInRange = false;
     private Animator animator;
+    private Animator hitAnimator;
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
     private Color originalColor;
@@ -34,6 +35,7 @@ public class EnemyController : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
         animator = GetComponent<Animator>();
+        hitAnimator = transform.GetChild(0).GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         healthManager = GetComponent<HealthManager>();
@@ -155,6 +157,7 @@ public class EnemyController : MonoBehaviour
             healthManager.TakeDamage(damage);
             StartCoroutine(HitFlash());
             animator?.SetTrigger("Hurt");
+            hitAnimator.SetTrigger("Hit");
         }
     }
 
