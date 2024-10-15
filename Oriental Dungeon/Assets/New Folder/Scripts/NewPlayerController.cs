@@ -130,11 +130,12 @@ public class NewPlayerController : MonoBehaviour
                 AttackSense.Instance.HitPause(heavyPause);
                 AttackSense.Instance.CameraShake(shakeTime, heavyStrength);
             }
-
+            /*
             if (transform.localScale.x > 0)
                 other.GetComponent<NewEnemy>().GetHit(Vector2.right);
             else if (transform.localScale.x < 0)
                 other.GetComponent<NewEnemy>().GetHit(Vector2.left);
+            */
         }
     }
 

@@ -173,7 +173,8 @@ public class CharacterAttack : MonoBehaviour
     private void HandleNewEnemy(NewEnemy newEnemy)
     {
         Vector2 hitDirection = (newEnemy.transform.position - transform.position).normalized;
-        newEnemy.GetHit(hitDirection);
+        int damage = isPerformingHeavyAttack ? heavyAttackDamage : attackDamage;
+        newEnemy.GetHit(hitDirection, damage);
 
         if (isPerformingHeavyAttack)
         {
