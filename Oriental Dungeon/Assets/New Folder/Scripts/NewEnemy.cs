@@ -33,7 +33,7 @@ public class NewEnemy : MonoBehaviour
 
     public void GetHit(Vector2 direction)
     {
-        transform.localScale = new Vector3(-direction.x, 1, 1);
+        transform.localScale = new Vector3(direction.x, 1, 1);
         isHit = true;
         this.direction = direction; ;
         animator.SetTrigger("Hit");

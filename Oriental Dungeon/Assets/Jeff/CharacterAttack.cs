@@ -137,30 +137,53 @@ public class CharacterAttack : MonoBehaviour
     {
         if (other.CompareTag("Enemy") && !hitEnemies.Contains(other))
         {
-            EnemyController enemyController = other.GetComponent<EnemyController>();
-            if (enemyController != null)
+            if (other.TryGetComponent<EnemyController>(out var enemyController))
             {
-                int damage = isPerformingHeavyAttack ? heavyAttackDamage : attackDamage;
-                enemyController.TakeDamage(damage);
-
-                if (isPerformingHeavyAttack)
-                {
-                    Vector2 knockbackDirection = (other.transform.position - transform.position).normalized;
-                    enemyController.Knockback(knockbackDirection * knockbackForce);
-
-                    // Trigger AttackSense effects for heavy attack
-                    AttackSense.Instance.HitPause(heavyAttackHitPauseDuration);
-                    AttackSense.Instance.CameraShake(shakeTime, heavyAttackCameraShakeStrength);
-                }
-                else
-                {
-                    // Trigger AttackSense effects for normal attack
-                    AttackSense.Instance.HitPause(normalAttackHitPauseDuration);
-                    AttackSense.Instance.CameraShake(shakeTime, normalAttackCameraShakeStrength);
-                }
-
-                hitEnemies.Add(other); // Add the enemy to the list of hit enemies
+                HandleEnemyController(enemyController);
             }
+            else if (other.TryGetComponent<NewEnemy>(out var newEnemy))
+            {
+                HandleNewEnemy(newEnemy);
+            }
+
+            hitEnemies.Add(other);
+        }
+    }
+
+    private void HandleEnemyController(EnemyController enemyController)
+    {
+        int damage = isPerformingHeavyAttack ? heavyAttackDamage : attackDamage;
+        enemyController.TakeDamage(damage);
+
+        if (isPerformingHeavyAttack)
+        {
+            Vector2 knockbackDirection = (enemyController.transform.position - transform.position).normalized;
+            enemyController.Knockback(knockbackDirection * knockbackForce);
+
+            AttackSense.Instance.HitPause(heavyAttackHitPauseDuration);
+            AttackSense.Instance.CameraShake(shakeTime, heavyAttackCameraShakeStrength);
+        }
+        else
+        {
+            AttackSense.Instance.HitPause(normalAttackHitPauseDuration);
+            AttackSense.Instance.CameraShake(shakeTime, normalAttackCameraShakeStrength);
+        }
+    }
+
+    private void HandleNewEnemy(NewEnemy newEnemy)
+    {
+        Vector2 hitDirection = (newEnemy.transform.position - transform.position).normalized;
+        newEnemy.GetHit(hitDirection);
+
+        if (isPerformingHeavyAttack)
+        {
+            AttackSense.Instance.HitPause(heavyAttackHitPauseDuration);
+            AttackSense.Instance.CameraShake(shakeTime, heavyAttackCameraShakeStrength);
+        }
+        else
+        {
+            AttackSense.Instance.HitPause(normalAttackHitPauseDuration);
+            AttackSense.Instance.CameraShake(shakeTime, normalAttackCameraShakeStrength);
         }
     }
 
