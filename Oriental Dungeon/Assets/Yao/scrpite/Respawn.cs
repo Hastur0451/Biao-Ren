@@ -9,6 +9,7 @@ public class RespawnSystem : MonoBehaviour
 
     private bool playerInRange = false;
     private Transform playerTransform;
+    private Vector2 currentRespawnPoint;
 
     private void Start()
     {
@@ -19,6 +20,15 @@ public class RespawnSystem : MonoBehaviour
         else
         {
             Debug.LogError("SavePointText (TextMeshPro) is not assigned for " + gameObject.name);
+        }
+
+        // 查找玩家并设置初始重生点
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            playerTransform = player.transform;
+            currentRespawnPoint = playerTransform.position;
+            Debug.Log("Initial spawn point set at: " + currentRespawnPoint);
         }
     }
 
@@ -60,19 +70,19 @@ public class RespawnSystem : MonoBehaviour
     {
         if (playerTransform != null)
         {
-            // 保存玩家位置
-            PlayerPrefs.SetFloat("SavedPosX", transform.position.x);
-            PlayerPrefs.SetFloat("SavedPosY", transform.position.y);
-            PlayerPrefs.Save();
+            currentRespawnPoint = transform.position;
+            Debug.Log("Checkpoint saved at: " + currentRespawnPoint);
 
-            Debug.Log("Checkpoint saved at: " + transform.position);
-
-            // 隐藏文本
             if (savePointText != null)
             {
                 savePointText.gameObject.SetActive(false);
             }
         }
+    }
+
+    public Vector2 GetCurrentRespawnPoint()
+    {
+        return currentRespawnPoint;
     }
 
     private void OnDrawGizmos()
