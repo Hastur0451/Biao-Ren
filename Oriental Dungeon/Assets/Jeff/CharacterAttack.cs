@@ -9,7 +9,14 @@ public class CharacterAttack : MonoBehaviour
     public int attackDamage = 20;
     public float attackCooldown = 0.5f;
     public float normalAttackDuration = 0.2f;
+<<<<<<< HEAD
     public float normalAttackDelay = 0.2f; // New field for normal attack delay
+=======
+<<<<<<< Updated upstream
+=======
+    public float normalAttackDelay = 0.2f;
+>>>>>>> Stashed changes
+>>>>>>> Jeff
 
     [Header("Heavy Attack Settings")]
     public int heavyAttackDamage = 40;
@@ -38,7 +45,7 @@ public class CharacterAttack : MonoBehaviour
 
     private Animator animator;
     private AudioSource audioSource;
-    private PolygonCollider2D hitbox;
+    private AttackBoxController attackBox;
     private HashSet<Collider2D> hitEnemies = new HashSet<Collider2D>();
 
     public bool IsChargingHeavyAttack
@@ -53,21 +60,18 @@ public class CharacterAttack : MonoBehaviour
             }
         }
     }
+
     public float ChargeProgress => IsChargingHeavyAttack ? Mathf.Clamp01((Time.time - mouseHoldStartTime) / heavyAttackChargeTime) : 0f;
 
     void Start()
     {
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
-        hitbox = GetComponentInChildren<PolygonCollider2D>();
+        attackBox = GetComponentInChildren<AttackBoxController>();
 
-        if (hitbox == null)
+        if (attackBox == null)
         {
-            Debug.LogError("PolygonCollider2D not found on child object!");
-        }
-        else
-        {
-            hitbox.enabled = false;
+            Debug.LogError("AttackBoxController not found on child object!");
         }
     }
 
@@ -133,10 +137,9 @@ public class CharacterAttack : MonoBehaviour
     private IEnumerator PerformAttack(float duration, bool isHeavyAttack)
     {
         isPerformingHeavyAttack = isHeavyAttack;
-        hitbox.enabled = true;
-        hitEnemies.Clear(); // Clear the list of hit enemies at the start of each attack
+        attackBox.ShowAttackEffect(isHeavyAttack, duration);
+        hitEnemies.Clear();
         yield return new WaitForSeconds(duration);
-        hitbox.enabled = false;
         isPerformingHeavyAttack = false;
     }
 
@@ -146,7 +149,30 @@ public class CharacterAttack : MonoBehaviour
         {
             if (other.TryGetComponent<EnemyController>(out var enemyController))
             {
+<<<<<<< HEAD
                 HandleEnemyController(enemyController);
+=======
+                int damage = isPerformingHeavyAttack ? heavyAttackDamage : attackDamage;
+                enemyController.TakeDamage(damage);
+
+                if (isPerformingHeavyAttack)
+                {
+                    Vector2 knockbackDirection = (other.transform.position - transform.position).normalized;
+                    enemyController.Knockback(knockbackDirection * knockbackForce);
+
+                    // Trigger AttackSense effects for heavy attack
+                    AttackSense.Instance.HitPause(heavyAttackHitPauseDuration);
+                    AttackSense.Instance.CameraShake(shakeTime, heavyAttackCameraShakeStrength);
+                }
+                else
+                {
+                    // Trigger AttackSense effects for normal attack
+                    AttackSense.Instance.HitPause(normalAttackHitPauseDuration);
+                    AttackSense.Instance.CameraShake(shakeTime, normalAttackCameraShakeStrength);
+                }
+
+                hitEnemies.Add(other); // Add the enemy to the list of hit enemies
+>>>>>>> Jeff
             }
             else if (other.TryGetComponent<NewEnemy>(out var newEnemy))
             {

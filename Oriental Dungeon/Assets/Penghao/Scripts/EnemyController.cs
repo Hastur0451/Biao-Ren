@@ -26,6 +26,7 @@ public class EnemyController : MonoBehaviour
     private Transform player;
     private bool isPlayerInRange = false;
     private Animator animator;
+    private Animator hitAnimator;
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
     private Color originalColor;
@@ -37,6 +38,7 @@ public class EnemyController : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
         animator = GetComponent<Animator>();
+        hitAnimator = transform.GetChild(0).GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
 
@@ -135,6 +137,7 @@ public class EnemyController : MonoBehaviour
 
         if (currentHealth <= 0)
         {
+<<<<<<< HEAD:Oriental Dungeon/Assets/Penghao/Scripts/Enemy.cs
             Die();
         }
     }
@@ -143,6 +146,12 @@ public class EnemyController : MonoBehaviour
         if (hurtSound != null && audioSource != null)
         {
             audioSource.PlayOneShot(hurtSound);
+=======
+            healthManager.TakeDamage(damage);
+            StartCoroutine(HitFlash());
+            animator?.SetTrigger("Hurt");
+            hitAnimator.SetTrigger("Hit");
+>>>>>>> Jeff:Oriental Dungeon/Assets/Penghao/Scripts/EnemyController.cs
         }
     }
     private IEnumerator HitFlash()
