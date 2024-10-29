@@ -35,6 +35,9 @@ public class CharacterController2D : MonoBehaviour
     private float moveHorizontal;
     private bool isFacingRight = true;
 
+    public int playerHealth = 100; // 玩家生命值
+    public int bossDamage = 20; // Boss 对玩家造成的伤害
+
     private void Start()
     {
         if (rb == null)
@@ -66,9 +69,6 @@ public class CharacterController2D : MonoBehaviour
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
         }
-
-        // 调试输出
-        Debug.Log($"IsGrounded: {isGrounded}, CanJump: {canJump}, IsJumping: {isJumping}");
     }
 
     private void UpdateGroundedState()
@@ -84,7 +84,6 @@ public class CharacterController2D : MonoBehaviour
             groundedRemember -= Time.deltaTime;
         }
 
-        // 在地面上时重置跳跃状态
         if (isGrounded && !isJumping)
         {
             canJump = true;
@@ -123,13 +122,11 @@ public class CharacterController2D : MonoBehaviour
             StartJump();
         }
 
-        // 检查是否应该结束跳跃
         if (isJumping && (transform.position.y - jumpStartY >= maxJumpHeight || rb.velocity.y <= 0))
         {
             StopJump();
         }
 
-        // 跳跃冷却检查
         if (!canJump && Time.time - lastJumpTime >= jumpCooldown)
         {
             canJump = true;
@@ -180,9 +177,37 @@ public class CharacterController2D : MonoBehaviour
         }
     }
 
-    // Animation-related methods
     public bool IsMoving() => Mathf.Abs(moveHorizontal) > 0.1f;
     public bool IsGrounded() => isGrounded;
     public bool IsJumping() => isJumping;
     public bool IsMovementEnabled() => movementEnabled;
+
+    // 检测与Boss的碰撞
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Boss"))
+        {
+            BossController boss = other.GetComponent<BossController>();
+            if (boss != null)
+            {
+                TakeDamage(bossDamage); // 当碰到Boss时，玩家受到伤害
+                Debug.Log("Player hit by Boss!");
+            }
+        }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        playerHealth -= damage;
+        if (playerHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("Player has died!");
+        // 在这里添加玩家死亡的逻辑，例如重生或结束游戏
+    }
 }
