@@ -1,65 +1,73 @@
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
-using UnityEngine.Rendering;
+using UnityEngine.UI;
 
-public class YinYangVisualEffect : MonoBehaviour
+public class YinYangDarkEffect : MonoBehaviour
 {
-    [Header("Post Processing")]
-    [SerializeField] private Volume postProcessVolume;
-    [SerializeField] private VolumeProfile yinProfile;
-    [SerializeField] private VolumeProfile yangProfile;
+    [Header("Darkness Settings")]
+    [Range(0f, 1f)]
+    [SerializeField] private float darkAmount = 0.8f;  // 阴界暗度
+    [SerializeField] private float transitionSpeed = 10f;  // 切换速度
 
-    [Header("Global Light")]
-    [SerializeField] private UnityEngine.Rendering.Universal.Light2D globalLight;
-    [SerializeField] private float yinWorldIntensity = 0.3f;
-    [SerializeField] private float yangWorldIntensity = 1f;
+    private Image darkPanel;
+    private float targetAlpha = 0f;
 
-    [Header("Transition")]
-    [SerializeField] private float transitionDuration = 0.5f;
-    private float currentTransitionTime = 0f;
-    private bool isTransitioning = false;
-
-    private void OnEnable()
+    void Start()
     {
-        YinYangEventManager.Instance.onYinWorld.AddListener(() => StartTransition(true));
-        YinYangEventManager.Instance.onYangWorld.AddListener(() => StartTransition(false));
+        SetupDarkEffect();
     }
 
-    private void OnDisable()
+    void SetupDarkEffect()
     {
-        if (YinYangEventManager.Instance != null)
+        // 创建Canvas
+        GameObject canvasObj = new GameObject("DarkCanvas");
+        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 999;  // 确保在最上层
+
+        // 添加CanvasScaler以适应不同分辨率
+        CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920, 1080);
+
+        // 创建黑色面板
+        GameObject panelObj = new GameObject("DarkPanel");
+        panelObj.transform.SetParent(canvas.transform, false);
+
+        darkPanel = panelObj.AddComponent<Image>();
+        darkPanel.color = new Color(0, 0, 0, 0);  // 初始完全透明
+
+        // 设置全屏
+        RectTransform rect = darkPanel.rectTransform;
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.sizeDelta = Vector2.zero;
+
+        // 将Canvas设为这个物体的子物体
+        canvasObj.transform.SetParent(transform);
+
+        Debug.Log("Dark effect system initialized");
+    }
+
+    // 切换到阴界
+    public void OnYinBroadcast()
+    {
+        targetAlpha = darkAmount;
+    }
+
+    // 切换到阳界
+    public void OnYangBroadcast()
+    {
+        targetAlpha = 0f;
+    }
+
+    void Update()
+    {
+        if (darkPanel != null)
         {
-            YinYangEventManager.Instance.onYinWorld.RemoveListener(() => StartTransition(true));
-            YinYangEventManager.Instance.onYangWorld.RemoveListener(() => StartTransition(false));
-        }
-    }
-
-    private void StartTransition(bool toYinWorld)
-    {
-        isTransitioning = true;
-        currentTransitionTime = 0f;
-
-        // 切换后处理配置
-        postProcessVolume.profile = toYinWorld ? yinProfile : yangProfile;
-    }
-
-    private void Update()
-    {
-        if (isTransitioning)
-        {
-            currentTransitionTime += Time.deltaTime;
-            float t = currentTransitionTime / transitionDuration;
-
-            if (t >= 1f)
-            {
-                isTransitioning = false;
-                t = 1f;
-            }
-
-            // 平滑过渡光照强度
-            float targetIntensity = YinYangEventManager.Instance.IsYinWorld ? yinWorldIntensity : yangWorldIntensity;
-            float startIntensity = YinYangEventManager.Instance.IsYinWorld ? yangWorldIntensity : yinWorldIntensity;
-            globalLight.intensity = Mathf.Lerp(startIntensity, targetIntensity, t);
+            // 平滑过渡
+            Color currentColor = darkPanel.color;
+            float newAlpha = Mathf.Lerp(currentColor.a, targetAlpha, Time.deltaTime * transitionSpeed);
+            darkPanel.color = new Color(0, 0, 0, newAlpha);
         }
     }
 }
