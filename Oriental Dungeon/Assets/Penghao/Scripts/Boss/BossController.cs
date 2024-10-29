@@ -223,8 +223,20 @@ public class BossController : MonoBehaviour
         Debug.Log("Boss uses skull attack!");
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, bool isHeavyAttack = false)
     {
+        // Optional: You can make the boss react differently to heavy vs normal attacks
+        if (isHeavyAttack)
+        {
+            AttackSense.Instance.HitPause(6); // Same as heavyAttackHitPauseDuration
+            AttackSense.Instance.CameraShake(0.1f, 0.1f); // Same as heavy attack values
+        }
+        else
+        {
+            AttackSense.Instance.HitPause(3); // Same as normalAttackHitPauseDuration
+            AttackSense.Instance.CameraShake(0.1f, 0.05f); // Same as normal attack values
+        }
+
         Debug.Log("Boss takes " + damage + " damage!");
     }
 

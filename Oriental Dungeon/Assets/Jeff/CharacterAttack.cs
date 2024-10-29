@@ -148,6 +148,10 @@ public class CharacterAttack : MonoBehaviour
             {
                 HandleNewEnemy(newEnemy);
             }
+            else if (other.TryGetComponent<BossController>(out var bossController))
+            {
+                HandleBossController(bossController);
+            }
 
             hitEnemies.Add(other);
         }
@@ -181,6 +185,27 @@ public class CharacterAttack : MonoBehaviour
 
         if (isPerformingHeavyAttack)
         {
+            AttackSense.Instance.HitPause(heavyAttackHitPauseDuration);
+            AttackSense.Instance.CameraShake(shakeTime, heavyAttackCameraShakeStrength);
+        }
+        else
+        {
+            AttackSense.Instance.HitPause(normalAttackHitPauseDuration);
+            AttackSense.Instance.CameraShake(shakeTime, normalAttackCameraShakeStrength);
+        }
+    }
+
+    private void HandleBossController(BossController bossController)
+    {
+        int damage = isPerformingHeavyAttack ? heavyAttackDamage : attackDamage;
+        bossController.TakeDamage(damage, isPerformingHeavyAttack);
+
+        if (isPerformingHeavyAttack)
+        {
+            Vector2 knockbackDirection = (bossController.transform.position - transform.position).normalized;
+            // Optional: Add knockback to boss if you want
+            // bossController.Knockback(knockbackDirection * knockbackForce);
+
             AttackSense.Instance.HitPause(heavyAttackHitPauseDuration);
             AttackSense.Instance.CameraShake(shakeTime, heavyAttackCameraShakeStrength);
         }

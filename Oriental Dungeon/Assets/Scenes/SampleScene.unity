@@ -5983,24 +5983,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &908322114
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 908322108}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91adcef298379854faff4190e492c355, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 5
-  maxHealth: 100
-  knockbackDuration: 0.5
-  flashDuration: 0.1
-  numberOfFlashes: 3
-  flashColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &925967987
 GameObject:
   m_ObjectHideFlags: 0
@@ -34080,7 +34062,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3059741448802732820, guid: 9972c4c0652227649bb174d4fcb3bff0, type: 3}
       propertyPath: m_TagString
-      value: Boss
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 7671748657711241481, guid: 9972c4c0652227649bb174d4fcb3bff0, type: 3}
       propertyPath: m_LocalScale.x
@@ -34150,9 +34132,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3059741448802732820, guid: 9972c4c0652227649bb174d4fcb3bff0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 908322112}
-    - targetCorrespondingSourceObject: {fileID: 3059741448802732820, guid: 9972c4c0652227649bb174d4fcb3bff0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 908322114}
   m_SourcePrefab: {fileID: 100100000, guid: 9972c4c0652227649bb174d4fcb3bff0, type: 3}
 --- !u!1 &2063804115
 GameObject:
@@ -35728,7 +35707,7 @@ Transform:
   m_GameObject: {fileID: 5518044233645813471}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -30.4, y: -10.9, z: 0}
+  m_LocalPosition: {x: 33.6, y: 68.5, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
