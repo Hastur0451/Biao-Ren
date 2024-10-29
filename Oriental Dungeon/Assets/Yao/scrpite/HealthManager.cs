@@ -75,30 +75,12 @@ public class HealthManager : MonoBehaviour
         isDead = true;
         OnDeath?.Invoke();
 
-<<<<<<< HEAD
         // 冻结位置
         frozenPosition = transform.position;
 
         // 禁用角色控制器
         if (characterController != null)
             characterController.SetMovementEnabled(false);
-=======
-        // Disable character controller
-        if (characterController != null)
-            characterController.SetMovementEnabled(false);
-
-        // Completely stop the Rigidbody2D
-        if (rb != null)
-        {
-            rb.velocity = Vector2.zero;
-            rb.angularVelocity = 0f;
-            rb.simulated = false;  // This disables physics simulation
-        }
-
-        // Disable the collider to prevent further collisions
-        if (col != null)
-            col.enabled = false;
->>>>>>> Jeff
 
         // 禁用刚体
         if (rb != null)
@@ -121,7 +103,7 @@ public class HealthManager : MonoBehaviour
         }
         else if (destroyOnDeath)
         {
-            Destroy(gameObject, respawnDelay);
+            Destroy(gameObject, respawnDelay); // 延迟销毁，给动画播放的时间
         }
     }
 
@@ -133,7 +115,6 @@ public class HealthManager : MonoBehaviour
 
     private void Respawn()
     {
-<<<<<<< HEAD
         isDead = false;
 
         // 重置血量
@@ -142,38 +123,13 @@ public class HealthManager : MonoBehaviour
 
         // 获取保存的位置
         Vector3 respawnPosition = GetSavedPosition();
-=======
-        currentHealth = maxHealth;
-        OnHealthChanged?.Invoke(currentHealth, maxHealth);
-
-        Vector3 respawnPosition;
-        if (RespawnSystem.Instance != null)
-        {
-            respawnPosition = RespawnSystem.Instance.GetLastSavedPosition();
-            if (respawnPosition == Vector3.zero)
-            {
-                Debug.LogWarning("No valid respawn point found. Using initial position.");
-                respawnPosition = initialPosition;
-            }
-        }
-        else
-        {
-            Debug.LogWarning("RespawnSystem not found. Using initial position.");
-            respawnPosition = initialPosition;
-        }
->>>>>>> Jeff
         respawnPosition.z = 0f;
         transform.position = respawnPosition;
 
-        // Re-enable components
+        // 重新启用角色控制器
         if (characterController != null)
             characterController.SetMovementEnabled(true);
-        if (rb != null)
-            rb.simulated = true;
-        if (col != null)
-            col.enabled = true;
 
-<<<<<<< HEAD
         // 重新启用刚体和碰撞体
         if (rb != null)
         {
@@ -184,11 +140,10 @@ public class HealthManager : MonoBehaviour
             col.enabled = true;
 
         // 触发重生动画
-=======
->>>>>>> Jeff
         if (animationController != null)
             animationController.TriggerRespawnAnimation();
 
+        // 触发重生事件
         OnRespawn?.Invoke();
 
         Debug.Log("Player respawned at: " + transform.position);

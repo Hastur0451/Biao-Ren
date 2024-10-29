@@ -9,14 +9,7 @@ public class CharacterAttack : MonoBehaviour
     public int attackDamage = 20;
     public float attackCooldown = 0.5f;
     public float normalAttackDuration = 0.2f;
-<<<<<<< HEAD
-    public float normalAttackDelay = 0.2f; // New field for normal attack delay
-=======
-<<<<<<< Updated upstream
-=======
     public float normalAttackDelay = 0.2f;
->>>>>>> Stashed changes
->>>>>>> Jeff
 
     [Header("Heavy Attack Settings")]
     public int heavyAttackDamage = 40;
@@ -149,30 +142,7 @@ public class CharacterAttack : MonoBehaviour
         {
             if (other.TryGetComponent<EnemyController>(out var enemyController))
             {
-<<<<<<< HEAD
                 HandleEnemyController(enemyController);
-=======
-                int damage = isPerformingHeavyAttack ? heavyAttackDamage : attackDamage;
-                enemyController.TakeDamage(damage);
-
-                if (isPerformingHeavyAttack)
-                {
-                    Vector2 knockbackDirection = (other.transform.position - transform.position).normalized;
-                    enemyController.Knockback(knockbackDirection * knockbackForce);
-
-                    // Trigger AttackSense effects for heavy attack
-                    AttackSense.Instance.HitPause(heavyAttackHitPauseDuration);
-                    AttackSense.Instance.CameraShake(shakeTime, heavyAttackCameraShakeStrength);
-                }
-                else
-                {
-                    // Trigger AttackSense effects for normal attack
-                    AttackSense.Instance.HitPause(normalAttackHitPauseDuration);
-                    AttackSense.Instance.CameraShake(shakeTime, normalAttackCameraShakeStrength);
-                }
-
-                hitEnemies.Add(other); // Add the enemy to the list of hit enemies
->>>>>>> Jeff
             }
             else if (other.TryGetComponent<NewEnemy>(out var newEnemy))
             {
