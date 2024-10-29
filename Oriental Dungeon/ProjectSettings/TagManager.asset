@@ -9,6 +9,8 @@ TagManager:
   - Wood
   - trap
   - Enemy
+  - Weapon
+  - Boss
   layers:
   - Default
   - TransparentFX
