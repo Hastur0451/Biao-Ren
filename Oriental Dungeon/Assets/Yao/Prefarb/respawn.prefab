@@ -1,58 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2988353471832678332
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1918772795616163402}
-  - component: {fileID: 7559539311064669165}
-  m_Layer: 0
-  m_Name: GameObject (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1918772795616163402
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2988353471832678332}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.951, y: -0.068, z: -0.11197649}
-  m_LocalScale: {x: 0.68752146, y: 0.68752146, z: 0.68752146}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5841752708678343583}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7559539311064669165
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2988353471832678332}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d941a48b726c0f44ab2224112732b7c5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lightRadius: 2.4
-  lightIntensity: 1
-  useCustomFalloff: 1
-  innerRadiusRatio: 0.5
-  lightColor: {r: 1, g: 0.6156863, b: 0, a: 1}
-  showDebugLines: 1
-  outerRadiusColor: {r: 1, g: 0, b: 0, a: 0.5}
-  innerRadiusColor: {r: 0, g: 1, b: 0, a: 0.5}
-  circleSegments: 32
 --- !u!1 &5508701322612921825
 GameObject:
   m_ObjectHideFlags: 0
@@ -257,8 +204,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6443835117952995406}
-  - {fileID: 2932294148981564598}
-  - {fileID: 1918772795616163402}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2709118459912200644
@@ -373,56 +318,3 @@ MonoBehaviour:
   savePointText: {fileID: 6438106066788290782}
   savePointMessage: Press E to save checkpoint
   checkRadius: 2
---- !u!1 &9181061776177320547
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2932294148981564598}
-  - component: {fileID: 2529302950217284255}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2932294148981564598
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9181061776177320547}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.012, y: -0.062, z: -0.11197649}
-  m_LocalScale: {x: 0.68752146, y: 0.68752146, z: 0.68752146}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5841752708678343583}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2529302950217284255
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9181061776177320547}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d941a48b726c0f44ab2224112732b7c5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lightRadius: 2.4
-  lightIntensity: 1
-  useCustomFalloff: 1
-  innerRadiusRatio: 0.5
-  lightColor: {r: 1, g: 0.6156863, b: 0, a: 1}
-  showDebugLines: 1
-  outerRadiusColor: {r: 1, g: 0, b: 0, a: 0.5}
-  innerRadiusColor: {r: 0, g: 1, b: 0, a: 0.5}
-  circleSegments: 32
