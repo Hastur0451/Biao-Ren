@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    public float damage = 10f;
     public float lifetime = 5f;
 
     void Start()
@@ -14,10 +13,10 @@ public class Projectile : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            PlayerController player = collision.GetComponent<PlayerController>();
-            if (player != null)
+            HealthManager playerHealth = collision.GetComponent<HealthManager>();
+            if (playerHealth != null)
             {
-                //player.TakeDamage(damage);
+                playerHealth.TakeDamage(1); // 对玩家造成1点伤害
             }
             Destroy(gameObject); // 碰撞后立即销毁飞镖
         }

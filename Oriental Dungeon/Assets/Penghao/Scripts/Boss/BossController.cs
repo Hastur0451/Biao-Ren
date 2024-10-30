@@ -3,25 +3,29 @@ using UnityEngine;
 
 public class BossController : MonoBehaviour
 {
-    public Transform player;                   // 玩家位置
-    public float attackRange = 3f;             // 近战攻击范围
-    public float trackingRange = 6f;           // 追踪范围
-    public float farRange = 10f;               // 远程攻击范围
-    public float moveSpeed = 2f;               // Boss 移动速度
-    public int bossAttackDamage = 20;          // Boss 造成的近战伤害
-    public GameObject projectilePrefab;        // 普通投射物预制体
-    public GameObject meteorPrefab;            // 陨石（范围攻击）预制体
-    public GameObject[] skulls;                // 骷髅头对象数组
-    public GameObject swordSlashPrefab;        // 刀光预制体
-    public float projectileSpeed = 5f;         // 普通投射物速度
-    public float cooldownTime = 5f;            // 远程攻击冷却时间
-    public float slashCooldownTime = 2f;       // 刀光攻击冷却时间
-    public float spreadAngle = 30f;            // 多重发射的扇形角度
-    public int numberOfProjectiles = 3;        // 多重发射的投射物数量
-    public float skullShowTime = 10f;          // 骷髅头显示时间
-    public float skullCooldownTime = 15f;      // 骷髅头技能冷却时间
+    public Transform player;                    // 玩家位置
+    public Transform[] teleportPoints;          // 传送点数组
+    public float teleportChance = 0.35f;        // 传送概率 (35%)
+    public float attackRange = 3f;              // 近战攻击范围
+    public float trackingRange = 6f;            // 追踪范围
+    public float farRange = 10f;                // 远程攻击范围
+    public float moveSpeed = 2f;                // Boss 移动速度
+    public int bossAttackDamage = 20;           // Boss 造成的近战伤害
+    public GameObject projectilePrefab;         // 普通投射物预制体
+    public GameObject meteorPrefab;             // 陨石（范围攻击）预制体
+    public GameObject[] skulls;                 // 骷髅头对象数组
+    public GameObject swordSlashPrefab;         // 刀光预制体
+    public float projectileSpeed = 5f;          // 普通投射物速度
+    public float cooldownTime = 5f;             // 远程攻击冷却时间
+    public float slashCooldownTime = 2f;        // 刀光攻击冷却时间
+    public float spreadAngle = 30f;             // 多重发射的扇形角度
+    public int numberOfProjectiles = 3;         // 多重发射的投射物数量
+    public float skullShowTime = 10f;           // 骷髅头显示时间
+    public float skullCooldownTime = 15f;       // 骷髅头技能冷却时间
+    public int maxHealth = 100;                 // Boss 的最大血量
     public Animator animator;
 
+    private int currentHealth;
     private bool isOnCooldown = false;
     private bool isSlashOnCooldown = false;
     private bool isMovingToPlayer = false;
@@ -29,6 +33,8 @@ public class BossController : MonoBehaviour
 
     private void Start()
     {
+        currentHealth = maxHealth; // 初始化血量为最大血量
+
         // 确保所有骷髅头和刀光在游戏开始时是隐藏的
         foreach (var skull in skulls)
         {
@@ -46,19 +52,23 @@ public class BossController : MonoBehaviour
 
         if (distanceToPlayer <= attackRange)
         {
+            // 进入近战范围，停止移动并进行近战攻击
             StopMoving();
             AttackPlayerWithSwordSlash();
         }
         else if (distanceToPlayer <= trackingRange && distanceToPlayer > attackRange)
         {
+            // 在追踪范围内但不在近战范围内，持续追踪玩家
             StartMovingToPlayer();
         }
-        else if (distanceToPlayer <= farRange && !isOnCooldown && !isMovingToPlayer)
+        else if (distanceToPlayer <= farRange && distanceToPlayer > trackingRange && !isOnCooldown)
         {
+            // 在远程攻击范围内但不在追踪范围内，执行远程攻击
             StartCoroutine(RandomRangedAttack());
         }
         else
         {
+            // 玩家不在任何范围内，停止移动
             StopMoving();
         }
     }
@@ -189,9 +199,14 @@ public class BossController : MonoBehaviour
 
     private void CastMeteorAttack()
     {
-        Vector3 targetPosition = player.position;
-        GameObject meteor = Instantiate(meteorPrefab, targetPosition + new Vector3(0, 5f, 0), Quaternion.identity);
-        Debug.Log("Boss casts a meteor attack!");
+        Vector3 bossPosition = transform.position;       // Boss 当前的位置
+        Vector3 playerPosition = player.position;        // 玩家的位置
+        GameObject meteor = Instantiate(meteorPrefab);   // 实例化陨石
+        Meteor meteorScript = meteor.GetComponent<Meteor>();
+        if (meteorScript != null)
+        {
+            meteorScript.Initialize(bossPosition, playerPosition);  // 初始化陨石，设置生成位置和目标位置
+        }
     }
 
     private void ActivateSkullAttack()
@@ -225,19 +240,43 @@ public class BossController : MonoBehaviour
 
     public void TakeDamage(int damage, bool isHeavyAttack = false)
     {
-        // Optional: You can make the boss react differently to heavy vs normal attacks
+        currentHealth -= damage; // 减少血量
+
+        if (currentHealth <= 0)
+        {
+            Die();
+            return;
+        }
+
+        // 35% 概率传送
+        if (Random.value < teleportChance)
+        {
+            TeleportToRandomPoint();
+        }
+
         if (isHeavyAttack)
         {
-            AttackSense.Instance.HitPause(6); // Same as heavyAttackHitPauseDuration
-            AttackSense.Instance.CameraShake(0.1f, 0.1f); // Same as heavy attack values
+            AttackSense.Instance.HitPause(6);
+            AttackSense.Instance.CameraShake(0.1f, 0.1f);
         }
         else
         {
-            AttackSense.Instance.HitPause(3); // Same as normalAttackHitPauseDuration
-            AttackSense.Instance.CameraShake(0.1f, 0.05f); // Same as normal attack values
+            AttackSense.Instance.HitPause(3);
+            AttackSense.Instance.CameraShake(0.1f, 0.05f);
         }
 
         Debug.Log("Boss takes " + damage + " damage!");
+    }
+
+    private void TeleportToRandomPoint()
+    {
+        if (teleportPoints.Length > 0)
+        {
+            int randomIndex = Random.Range(0, teleportPoints.Length);
+            Transform selectedPoint = teleportPoints[randomIndex];
+            transform.position = selectedPoint.position; // 传送到随机选择的传送点位置
+            Debug.Log("Boss teleported to point: " + selectedPoint.position);
+        }
     }
 
     private void Die()
