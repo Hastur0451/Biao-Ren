@@ -2,19 +2,22 @@ using UnityEngine;
 
 public class Meteor : MonoBehaviour
 {
-    public float growDuration = 3f; // 增长时间
-    public float maxScale = 3f;     // 最大缩放
-    public float rotationSpeed = 100f; // 旋转速度
-    public float damage = 20f;      // 陨石伤害
-    private bool hasDealtDamage = false; // 检查是否已经造成伤害
+    public float growDuration = 3f;           // 增长时间
+    public float maxScale = 3f;               // 最大缩放
+    public float rotationSpeed = 100f;        // 旋转速度
+    public float fallSpeed = 10f;             // 坠落速度
+    public float damage = 20f;                // 陨石伤害
+    private bool hasDealtDamage = false;      // 检查是否已经造成伤害
 
-    private Vector3 targetPosition; // 玩家位置
+    private Vector3 targetPosition;           // 玩家位置
     private float timer = 0f;
 
-    public void Initialize(Vector3 targetPos)
+    public void Initialize(Vector3 bossPosition, Vector3 playerPosition)
     {
-        targetPosition = targetPos;
-        transform.localScale = new Vector3(1f, 1f, 1f);
+        // 设定目标位置为玩家的位置
+        targetPosition = playerPosition;
+        transform.position = bossPosition + new Vector3(0, 5f, 0); // 在Boss头顶生成
+        transform.localScale = new Vector3(1f, 1f, 1f);            // 初始缩放为1
     }
 
     void Update()
@@ -28,7 +31,7 @@ public class Meteor : MonoBehaviour
         // 旋转效果
         transform.Rotate(Vector3.forward * rotationSpeed * Time.deltaTime);
 
-        // 时间结束后坠落
+        // 在增长时间结束后开始坠落
         if (timer >= growDuration)
         {
             FallToTarget();
@@ -37,14 +40,14 @@ public class Meteor : MonoBehaviour
 
     void FallToTarget()
     {
-        // 坠落动画，可以使用线性移动来表现坠落效果
-        transform.position = Vector3.MoveTowards(transform.position, targetPosition, 10f * Time.deltaTime);
+        // 以线性方式移动到玩家的位置，表现出坠落效果
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, fallSpeed * Time.deltaTime);
 
-        // 可以添加一个碰撞检测来判断是否击中玩家
+        // 检查是否接近目标位置
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
-            // 坠落到目标位置，触发伤害并销毁
-            Destroy(gameObject); // 如果需要不同的效果可以在击中后销毁
+            // 到达目标位置后销毁陨石
+            Destroy(gameObject);
         }
     }
 
@@ -53,12 +56,12 @@ public class Meteor : MonoBehaviour
     {
         if (!hasDealtDamage && collision.CompareTag("Player"))
         {
-            PlayerController player = collision.GetComponent<PlayerController>();
-            if (player != null)
+            HealthManager playerHealth = collision.GetComponent<HealthManager>();
+            if (playerHealth != null)
             {
-                //player.TakeDamage(damage);
-                hasDealtDamage = true; // 标记已造成伤害，确保不会多次伤害玩家
-                Destroy(gameObject);   // 碰撞后立即销毁陨石
+                playerHealth.TakeDamage((int)damage); // 使用 HealthManager 对玩家造成伤害
+                hasDealtDamage = true;                // 标记已造成伤害，确保不会多次伤害玩家
+                Destroy(gameObject);                  // 碰撞后立即销毁陨石
             }
         }
     }
