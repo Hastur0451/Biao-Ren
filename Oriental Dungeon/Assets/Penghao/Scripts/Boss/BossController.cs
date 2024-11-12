@@ -25,7 +25,7 @@ public class BossController : MonoBehaviour
     public int maxHealth = 100;                 // Boss 的最大血量
     public Animator animator;
 
-    private int currentHealth;
+    public int currentHealth;
     private bool isOnCooldown = false;
     private bool isSlashOnCooldown = false;
     private bool isMovingToPlayer = false;
