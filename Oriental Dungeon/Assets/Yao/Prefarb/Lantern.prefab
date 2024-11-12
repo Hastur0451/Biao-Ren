@@ -102,7 +102,7 @@ MonoBehaviour:
   lightIntensity: 5
   useCustomFalloff: 1
   innerRadiusRatio: 0.5
-  lightColor: {r: 0.0141509175, g: 0.6618957, b: 1, a: 1}
+  lightColor: {r: 0.043137252, g: 0.45605907, b: 1, a: 1}
   light2D: {fileID: 4634660624760658074}
 --- !u!114 &4634660624760658074
 MonoBehaviour:

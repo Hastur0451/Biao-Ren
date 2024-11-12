@@ -79,7 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d941a48b726c0f44ab2224112732b7c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lightRadius: 1.5
+  lightRadius: 2.5
   lightIntensity: 2
   useCustomFalloff: 1
   innerRadiusRatio: 0.5
@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d941a48b726c0f44ab2224112732b7c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lightRadius: 1.5
+  lightRadius: 2.5
   lightIntensity: 2
   useCustomFalloff: 1
   innerRadiusRatio: 0.5
