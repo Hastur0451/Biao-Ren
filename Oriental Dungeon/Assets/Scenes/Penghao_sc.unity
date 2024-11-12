@@ -50807,6 +50807,7 @@ MonoBehaviour:
   boss: {fileID: 1018192953}
   bossHealthBar: {fileID: 1407096566}
   displayDistance: 40
+  endSceneName: EndScene
 --- !u!1 &1522055909
 GameObject:
   m_ObjectHideFlags: 0
@@ -56645,7 +56646,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 90344d5e05a4dd145a8907e209f603b3, type: 2}
+  - {fileID: 2100000, guid: c5a65547d1edf4a9d882bd6cff83eda8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

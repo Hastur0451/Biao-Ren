@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BossController : MonoBehaviour
 {
@@ -282,6 +283,17 @@ public class BossController : MonoBehaviour
     private void Die()
     {
         Debug.Log("Boss has been defeated!");
-        Destroy(gameObject);
+        StartCoroutine(EndGameSequence());
+    }
+
+    private IEnumerator EndGameSequence()
+    {
+        // Optional: You can add death animation or effects here
+
+        // Wait for a moment before loading the end scene
+        yield return new WaitForSeconds(2f);
+
+        // Load the end scene
+        SceneManager.LoadScene("EndScene");
     }
 }
