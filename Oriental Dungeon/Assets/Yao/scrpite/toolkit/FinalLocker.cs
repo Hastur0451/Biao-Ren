@@ -37,13 +37,7 @@ public class ItemDetector : MonoBehaviour
         }
 
         // 在开始时隐藏所有要激活的物品
-        foreach (GameObject item in itemsToActivate)
-        {
-            if (item != null)
-            {
-                item.SetActive(false);
-            }
-        }
+        HideActivateItems();
 
         // 如果设置为开始时检查，则立即执行一次检查
         if (checkOnStart)
@@ -54,7 +48,7 @@ public class ItemDetector : MonoBehaviour
 
     void Update()
     {
-        // 如果已经激活过且设置为只激活一次，则返回
+        // 如果设置为只激活一次且已经激活过，则返回
         if (hasActivated && activateOnce)
             return;
 
@@ -84,10 +78,31 @@ public class ItemDetector : MonoBehaviour
             }
         }
 
-        // 如果所有物品都消失了，激活指定物品
+        // 根据检查结果执行相应操作
         if (allItemsGone)
         {
+            // 如果所有物品都消失了，激活指定物品
             ActivateItems();
+        }
+        else
+        {
+            // 如果有物品存在，但激活物体处于激活状态，则重新隐藏
+            bool anyActivated = false;
+            foreach (GameObject item in itemsToActivate)
+            {
+                if (item != null && item.activeInHierarchy)
+                {
+                    anyActivated = true;
+                    break;
+                }
+            }
+
+            // 只有在非"只激活一次"模式下，或者尚未激活过的情况下，才进行隐藏
+            if (anyActivated && (!activateOnce || !hasActivated))
+            {
+                HideActivateItems();
+                hasActivated = false;
+            }
         }
     }
 
@@ -100,15 +115,11 @@ public class ItemDetector : MonoBehaviour
                 item.SetActive(true);
             }
         }
-
         hasActivated = true;
     }
 
-    // 提供公共方法重置激活状态
-    public void ResetActivation()
+    void HideActivateItems()
     {
-        hasActivated = false;
-        // 重置时重新隐藏所有要激活的物品
         foreach (GameObject item in itemsToActivate)
         {
             if (item != null)
@@ -116,6 +127,13 @@ public class ItemDetector : MonoBehaviour
                 item.SetActive(false);
             }
         }
+    }
+
+    // 提供公共方法重置激活状态
+    public void ResetActivation()
+    {
+        hasActivated = false;
+        HideActivateItems();
     }
 
     // 提供公共方法手动检查物品
