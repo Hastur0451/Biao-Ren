@@ -2,34 +2,42 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement; // This imports SceneManager
 
 public class NewBehaviourScript : MonoBehaviour
 {
-    public Transform player; // 玩家对象
-    public Transform boss;   // Boss对象
+    public Transform player;
+    public Transform boss;
     private BossController controller;
-    public GameObject bossHealthBar; // Boss的血条UI
+    public GameObject bossHealthBar;
     private Slider slider;
-    public float displayDistance = 10f; // 显示血条的距离
+    public float displayDistance = 10f;
 
-    // Start is called before the first frame update
+    public string endSceneName = "EndScene"; // Add the name of your end scene
+    private bool hasTriggeredEndScene = false; // Flag to prevent multiple triggers
+
     void Start()
     {
-        // 初始状态隐藏血条
         bossHealthBar.SetActive(false);
         slider = bossHealthBar.GetComponent<Slider>();
         controller = boss.GetComponent<BossController>();
         slider.maxValue = controller.maxHealth;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (boss) { 
-            // 计算玩家和Boss之间的距离
+        if (boss)
+        {
             float distance = Vector3.Distance(player.position, boss.position);
             slider.value = controller.currentHealth;
-            // 如果距离小于显示距离，则显示血条；否则隐藏
+
+            // Check for boss death
+            if (controller.currentHealth <= 0 && !hasTriggeredEndScene)
+            {
+                hasTriggeredEndScene = true;
+                StartCoroutine(LoadEndScene());
+            }
+
             if (distance <= displayDistance)
             {
                 bossHealthBar.SetActive(true);
@@ -42,7 +50,15 @@ public class NewBehaviourScript : MonoBehaviour
         else
         {
             bossHealthBar.SetActive(false);
-            //如果要加通关显示之类的可以在这里加
         }
+    }
+
+    IEnumerator LoadEndScene()
+    {
+        // Optional: Add a small delay before loading the end scene
+        yield return new WaitForSeconds(2f);
+
+        // Load the end scene - Fixed this line
+        SceneManager.LoadScene("EndScene");
     }
 }
