@@ -30,6 +30,7 @@ public class SwordSlash : MonoBehaviour
             else // 50% 的概率反弹回去
             {
                 Rigidbody2D rb = other.GetComponent<Rigidbody2D>();
+                other.gameObject.layer = 9;
                 if (rb != null)
                 {
                     // 将物品的速度方向反转，使其反弹回去

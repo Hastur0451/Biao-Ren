@@ -15,10 +15,6 @@ public class BossSwordSlash : MonoBehaviour
     {
         swordRenderer = GetComponent<SpriteRenderer>();
         swordCollider = GetComponent<Collider2D>();
-
-        // 初始状态：隐藏刀光并禁用碰撞体
-        swordRenderer.enabled = false;
-        swordCollider.enabled = false;
     }
 
     public void TriggerAttack()
