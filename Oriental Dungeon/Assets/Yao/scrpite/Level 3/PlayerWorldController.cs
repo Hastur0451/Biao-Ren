@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerYinYangTrigger : MonoBehaviour
 {
-    [SerializeField] private KeyCode toggleKey = KeyCode.Q;
+    [SerializeField] private KeyCode toggleKey = KeyCode.R;
     private bool lastBroadcastWasYang = false;
     private YinYangWorldSystem worldSystem;
 
