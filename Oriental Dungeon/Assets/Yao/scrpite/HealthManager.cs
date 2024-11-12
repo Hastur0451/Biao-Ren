@@ -122,9 +122,8 @@ public class HealthManager : MonoBehaviour
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
         // 获取保存的位置
-        Vector3 respawnPosition = GetSavedPosition();
-        respawnPosition.z = 0f;
-        transform.position = respawnPosition;
+        Vector2 respawnPos = RespawnSystem.GetRespawnPosition();
+        transform.position = respawnPos;
 
         // 重新启用角色控制器
         if (characterController != null)

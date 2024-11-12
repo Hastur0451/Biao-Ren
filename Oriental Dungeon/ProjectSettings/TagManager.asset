@@ -9,6 +9,9 @@ TagManager:
   - Wood
   - trap
   - Enemy
+  - Weapon
+  - Boss
+  - Meteor
   layers:
   - Default
   - TransparentFX

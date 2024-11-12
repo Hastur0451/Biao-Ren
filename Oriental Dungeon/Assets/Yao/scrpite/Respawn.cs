@@ -7,9 +7,14 @@ public class RespawnSystem : MonoBehaviour
     [SerializeField] private string savePointMessage = "Press E to save checkpoint";
     [SerializeField] private float checkRadius = 2f;
 
+    // 使用静态变量来存储当前会话中的复活点位置
+    private static Vector2 savedPosition;
+    private static bool hasCheckpoint = false;
+    private static Vector2 initialPosition;
+    private static bool hasInitialPosition = false;
+
     private bool playerInRange = false;
     private Transform playerTransform;
-    private Vector2 currentRespawnPoint;
 
     private void Start()
     {
@@ -22,13 +27,16 @@ public class RespawnSystem : MonoBehaviour
             Debug.LogError("SavePointText (TextMeshPro) is not assigned for " + gameObject.name);
         }
 
-        // 查找玩家并设置初始重生点
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
+        // 如果还没记录初始位置，记录玩家初始位置
+        if (!hasInitialPosition)
         {
-            playerTransform = player.transform;
-            currentRespawnPoint = playerTransform.position;
-            Debug.Log("Initial spawn point set at: " + currentRespawnPoint);
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                initialPosition = player.transform.position;
+                hasInitialPosition = true;
+                Debug.Log("Initial position set at: " + initialPosition);
+            }
         }
     }
 
@@ -70,8 +78,10 @@ public class RespawnSystem : MonoBehaviour
     {
         if (playerTransform != null)
         {
-            currentRespawnPoint = transform.position;
-            Debug.Log("Checkpoint saved at: " + currentRespawnPoint);
+            // 保存当前复活点位置
+            savedPosition = transform.position;
+            hasCheckpoint = true;
+            Debug.Log("Checkpoint saved at: " + savedPosition);
 
             if (savePointText != null)
             {
@@ -80,9 +90,21 @@ public class RespawnSystem : MonoBehaviour
         }
     }
 
-    public Vector2 GetCurrentRespawnPoint()
+    // 获取重生位置
+    public static Vector2 GetRespawnPosition()
     {
-        return currentRespawnPoint;
+        // 如果有保存的复活点，使用复活点
+        if (hasCheckpoint)
+        {
+            return savedPosition;
+        }
+        // 否则使用初始位置
+        else if (hasInitialPosition)
+        {
+            return initialPosition;
+        }
+        // 如果都没有，返回原点（不应该发生）
+        return Vector2.zero;
     }
 
     private void OnDrawGizmos()
